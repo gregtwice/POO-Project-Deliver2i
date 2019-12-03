@@ -2,8 +2,12 @@
   <library name="JPA 2.0">
     <CLASSES>
       <root url="jar://$PROJECT_DIR$/lib/eclipselink/javax.persistence-2.2.1.jar!/" />
+      <root url="file://$PROJECT_DIR$/../../../POO TP2 correction/TP1/lib/mysql-connector-java-5.1.47" />
     </CLASSES>
     <JAVADOC />
-    <SOURCES />
+    <SOURCES>
+      <root url="file://$PROJECT_DIR$/../../../POO TP2 correction/TP1/lib/mysql-connector-java-5.1.47/src" />
+    </SOURCES>
+    <jarDirectory url="file://$PROJECT_DIR$/../../../POO TP2 correction/TP1/lib/mysql-connector-java-5.1.47" recursive="false" />
   </library>
 </component>
