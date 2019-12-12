@@ -1,9 +1,6 @@
 package modele;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
+import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -11,10 +8,13 @@ import java.util.Set;
 public class Solution {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "INSTANCE_ID")
     private Instance instance;
-    @OneToMany(mappedBy = "appartient")
+
+    @OneToMany(mappedBy = "appartient", cascade = CascadeType.ALL)
     private Set<Shift> shifts;
 
     public Solution() {this.shifts = new HashSet<>();}
@@ -47,7 +47,9 @@ public class Solution {
     public void algoBasique() {
         for (Tournee tournee : instance.getTournees()) {
             Shift curShift = new Shift(instance.getDureeMin(), instance.getDureeMax());
+            curShift.setAppartient(this);
             curShift.addTournee(tournee);
+            tournee.addShift(curShift);
             shifts.add(curShift);
         }
 

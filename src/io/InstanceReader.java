@@ -110,7 +110,9 @@ public class InstanceReader {
             ////////////////////////////////////////////
             // TODO : Vous pouvez ajoutez chacune des tournees a votre instance
             ////////////////////////////////////////////
-            instance.addTournee(new Tournee(elem.debut, elem.fin));
+            Tournee tournee = new Tournee(elem.debut, elem.fin);
+            tournee.setAppartient(instance);
+            instance.addTournee(tournee);
         }
         return instance;
     }

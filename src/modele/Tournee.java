@@ -1,29 +1,31 @@
 package modele;
 
-import javax.persistence.Basic;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
+import javax.persistence.*;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 @Entity
 public class Tournee {
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL)
     private Instance appartient;
 
-    @ManyToOne
-    private Shift shift;
+    @ManyToMany
+    private Set<Shift> shifts;
     @Basic
     private Date debut;
     private Date fin;
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     public Tournee(Date debut, Date fin) {
+        this();
         this.debut = debut;
         this.fin = fin;
+        this.shifts = new HashSet<>();
     }
 
     public Tournee() {
@@ -69,7 +71,21 @@ public class Tournee {
     public Date getFin() {
         return fin;
     }
+
     public int temps() {
         return (int) ((fin.getTime() - debut.getTime()) / 1000 / 60);
+    }
+
+
+    public Instance getAppartient() {
+        return appartient;
+    }
+
+    public void setAppartient(Instance appartient) {
+        this.appartient = appartient;
+    }
+
+    public void addShift(Shift shift) {
+        this.shifts.add(shift);
     }
 }
