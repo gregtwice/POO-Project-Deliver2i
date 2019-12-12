@@ -1,9 +1,6 @@
 package modele;
 
-import javax.persistence.Basic;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
+import javax.persistence.*;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -19,10 +16,11 @@ public class Instance {
     @Basic
     private Date date;
 
-    @OneToMany(mappedBy = "appartient")
+    @OneToMany(mappedBy = "appartient", cascade = CascadeType.ALL)
     private Set<Tournee> tournees;
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     public Instance(String nom, int dureeMin, int dureeMax, Date date) {

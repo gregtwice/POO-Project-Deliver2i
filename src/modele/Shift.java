@@ -10,16 +10,23 @@ import java.util.Set;
 public class Shift {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Basic
+    @Column(name = "DUREE_MIN")
     private int DUREE_MIN;
     @Basic
+    @Column(name = "DUREE_MAX")
     private int DUREE_MAX;
 
-    @OneToMany(mappedBy = "shift")
+    @OneToMany( cascade = CascadeType.ALL)
     private Set<Tournee> tournees;
-    @ManyToOne
+
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "SOLUTION_ID")
     private Solution appartient;
+
+    @Column(name = "TEMPS_TOTAL")
     private int tempsTotal;
 
     public Shift(int DUREE_MIN, int DUREE_MAX) {

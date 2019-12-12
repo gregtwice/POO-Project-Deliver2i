@@ -2,3 +2,5 @@
 /.idea/
 /instances/
 /out/
+
+*.jdbc
