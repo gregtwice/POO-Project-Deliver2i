@@ -5,29 +5,23 @@
  */
 package io;
 
-import io.exception.EmptyFieldException;
-import io.exception.FieldFormatException;
-import io.exception.FieldNameException;
-import io.exception.FileExistException;
-import io.exception.FormatFileException;
-import io.exception.NumberColumnsException;
-import io.exception.OpenFileException;
-import io.exception.ReaderException;
+import io.exception.*;
+import modele.Instance;
+import modele.Tournee;
+
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.PrintWriter;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Scanner;
 
 /**
- * Classe qui permet de lire une instance pour le projet de POO3 2019/2020.
- * Le format des instances est decrit dans le sujet du projet.
- * Attention, ceci est un squellette de code, il faut le compléter.
- * Des commentaires contenant 'TODO' vous aident pour voir a quel endroit vous pouvez completer.
- * N'hésitez pas a apporter toutes les modifications que vous jugez utiles.
- * 
+ * Classe qui permet de lire une instance pour le projet de POO3 2019/2020. Le format des instances est decrit dans le
+ * sujet du projet. Attention, ceci est un squellette de code, il faut le compléter. Des commentaires contenant 'TODO'
+ * vous aident pour voir a quel endroit vous pouvez completer. N'hésitez pas a apporter toutes les modifications que
+ * vous jugez utiles.
+ *
  * @author Maxime Ogier
  */
 public class InstanceReader {
@@ -42,8 +36,9 @@ public class InstanceReader {
 
     /**
      * Constructeur par donnee du chemin du fichier d'instance.
-     * @param inputPath le chemin du fichier d'acces, qui doit terminer 
-     * par l'extension du fichier (.csv).
+     *
+     * @param inputPath le chemin du fichier d'acces, qui doit terminer par l'extension du fichier (.csv).
+     *
      * @throws ReaderException lorsque le fichier n'est pas au bon format ou ne pas etre ouvert.
      */
     public InstanceReader(String inputPath) throws ReaderException {
@@ -57,13 +52,28 @@ public class InstanceReader {
         this.instanceFile = new File(instanceName);
         this.numLigne = 0;
     }
-    
+
+    /**
+     * Un petite test pour verifier que tout fonctionne correctement.
+     */
+    public static void main(String[] args) {
+        try {
+            InstanceReader reader = new InstanceReader("instances/instance_test.csv");
+            reader.readInstance();
+            System.out.println("Instance lue avec success !");
+        } catch (ReaderException ex) {
+            System.out.println(ex.getMessage());
+        }
+    }
+
     /**
      * Methoide principale pour lire le fichier d'instance.
-     * @throws ReaderException lorsque les donnees dans le fichier d'instance 
-     * sont manquantes ou au mauvais format.
+     *
+     * @return L'instance Lue
+     *
+     * @throws ReaderException lorsque les donnees dans le fichier d'instance sont manquantes ou au mauvais format.
      */
-    public void readInstance() throws ReaderException {
+    public Instance readInstance() throws ReaderException {
         Scanner scanner = null;
         try {
             scanner = new Scanner(instanceFile);
@@ -78,11 +88,13 @@ public class InstanceReader {
         ////////////////////////////////////////////
         // TODO : Vous pouvez creer une instance.
         ////////////////////////////////////////////
+        Instance instance = new Instance(name, dureeMin, dureeMax, date);
+
         readStringInLine(scanner, new String[]{"Debut", "Fin"});
         // Dans la boucle qui suit, nous allons lire les donnees relatives a chaque tournee.
-        while(true) {
+        while (true) {
             DebutFin elem = readPaireInLine(scanner);
-            if(elem == null) {
+            if (elem == null) {
                 break;
             }
             elem.addTime(date);
@@ -90,40 +102,45 @@ public class InstanceReader {
             // Vous pouvez acceder a ces deux attributs de la maniere suivante :
             // elem.getDebut()
             // elem.getFin()
-            // Il est egalement important de noter que ces dates correspondent 
+            // Il est egalement important de noter que ces dates correspondent
             // a la fusion de la date de l'instance au format jj/mm/aaa
             // et et des dates du trip au format hh:mm
             // Nous obtenons donc des dates au format jj/mm/aaaa hh:mm
-            
+
             ////////////////////////////////////////////
             // TODO : Vous pouvez ajoutez chacune des tournees a votre instance
             ////////////////////////////////////////////
+            Tournee tournee = new Tournee(elem.debut, elem.fin);
+            tournee.setAppartient(instance);
+            instance.addTournee(tournee);
         }
+        return instance;
     }
 
     /**
-     * Lecture de plusieurs chaines de caracteres dans une seule ligne
+     * Lecture d'une chaine de caracteres dans la seconde colonne d'une ligne
+     *
      * @param scanner lecteur du fichier
-     * @param names tous lesnoms qui doivent etre dans la ligne courante (separes par des points-virgules)
+     * @param name    le nom qui doit etre indique dans la premiere colonne
+     *
+     * @return la chaine de caracteres
+     *
      * @throws ReaderException lorsque le format attendu n'est pas respecte
      */
-    private void readStringInLine(Scanner scanner, String[] names) throws ReaderException {
+    private String readStringInLine(Scanner scanner, String name) throws ReaderException {
         String[] values = nextLine(scanner);
-        if(values.length != names.length) {
-            throw new NumberColumnsException(numLigne, names);
-        }
-        for(int col=0; col<values.length; col++) {
-            if (!values[col].equalsIgnoreCase(names[col])) {
-                throw new FieldNameException(numLigne, col+1, names[col]);
-            }
-        } 
+        checkLine(values, name);
+        return values[1];
     }
 
     /**
-     * Lecture d'un nombre entier dans la seconde colonne d'une ligne 
+     * Lecture d'un nombre entier dans la seconde colonne d'une ligne
+     *
      * @param scanner lecteur du fichier
-     * @param name le nom qui doit etre indique dans la premiere colonne
+     * @param name    le nom qui doit etre indique dans la premiere colonne
+     *
      * @return le nombre entier
+     *
      * @throws ReaderException lorsque le format attendu n'est pas respecte
      */
     private int readIntInLine(Scanner scanner, String name) throws ReaderException {
@@ -137,39 +154,15 @@ public class InstanceReader {
         }
         return val;
     }
-    
-    /**
-     * Lecture de dates de deux dates au format hh:mm dans les deux premieres colonnes
-     * @param scanner lecteur du fichier
-     * @return les deux dates : debut et fin
-     * @throws ReaderException lorsque le format attendu n'est pas respecte
-     */
-    private DebutFin readPaireInLine(Scanner scanner) throws ReaderException {
-        String[] values = nextLine(scanner);
-        if(values.length == 0) {
-            return null;
-        }
-        if (values.length < 2) {
-            throw new EmptyFieldException(numLigne, 2);
-        } 
-        DebutFin val;
-        try {
-            String pattern = "HH:mm";
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
-            Date debut = simpleDateFormat.parse(values[0]);
-            Date fin = simpleDateFormat.parse(values[1]);
-            val = new DebutFin(debut, fin);
-        } catch (ParseException ex) {
-            throw new FieldFormatException(numLigne, 2, "un temps au format hh:mm");
-        }
-        return val;
-    }
-    
+
     /**
      * Lecture d'une date dans la seconde colonne d'une ligne, au format jj/mm/aaaa
+     *
      * @param scanner lecteur du fichier
-     * @param name le nom qui doit etre indique dans la premiere colonne
-     * @return la date 
+     * @param name    le nom qui doit etre indique dans la premiere colonne
+     *
+     * @return la date
+     *
      * @throws ReaderException lorsque le format attendu n'est pas respecte
      */
     private Date readDateInLine(Scanner scanner, String name) throws ReaderException {
@@ -187,23 +180,82 @@ public class InstanceReader {
     }
 
     /**
-     * Lecture d'une chaine de caracteres dans la seconde colonne d'une ligne
+     * Lecture de plusieurs chaines de caracteres dans une seule ligne
+     *
      * @param scanner lecteur du fichier
-     * @param name le nom qui doit etre indique dans la premiere colonne
-     * @return la chaine de caracteres
+     * @param names   tous lesnoms qui doivent etre dans la ligne courante (separes par des points-virgules)
+     *
      * @throws ReaderException lorsque le format attendu n'est pas respecte
      */
-    private String readStringInLine(Scanner scanner, String name) throws ReaderException {
+    private void readStringInLine(Scanner scanner, String[] names) throws ReaderException {
         String[] values = nextLine(scanner);
-        checkLine(values, name);
-        return values[1];    
+        if (values.length != names.length) {
+            throw new NumberColumnsException(numLigne, names);
+        }
+        for (int col = 0; col < values.length; col++) {
+            if (!values[col].equalsIgnoreCase(names[col])) {
+                throw new FieldNameException(numLigne, col + 1, names[col]);
+            }
+        }
+    }
+
+    /**
+     * Lecture de dates de deux dates au format hh:mm dans les deux premieres colonnes
+     *
+     * @param scanner lecteur du fichier
+     *
+     * @return les deux dates : debut et fin
+     *
+     * @throws ReaderException lorsque le format attendu n'est pas respecte
+     */
+    private DebutFin readPaireInLine(Scanner scanner) throws ReaderException {
+        String[] values = nextLine(scanner);
+        if (values.length == 0) {
+            return null;
+        }
+        if (values.length < 2) {
+            throw new EmptyFieldException(numLigne, 2);
+        }
+        DebutFin val;
+        try {
+            String pattern = "HH:mm";
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
+            Date debut = simpleDateFormat.parse(values[0]);
+            Date fin = simpleDateFormat.parse(values[1]);
+            val = new DebutFin(debut, fin);
+        } catch (ParseException ex) {
+            throw new FieldFormatException(numLigne, 2, "un temps au format hh:mm");
+        }
+        return val;
+    }
+
+    /**
+     * Lecture de la prochaine ligne du fichier
+     *
+     * @param scanner lecteur du fichier
+     *
+     * @return les valeurs presentes dans les differentes colonnes (separees par des points-virgules)
+     */
+    private String[] nextLine(Scanner scanner) {
+        String[] values = null;
+        do {
+            if (!scanner.hasNextLine()) {
+                return new String[]{};
+            }
+            String line = scanner.nextLine();
+            values = line.split(";");
+            this.numLigne++;
+        } while (values.length == 0);
+        return values;
     }
 
     /**
      * Verification de la validite d'une ligne.
+     *
      * @param values les valeurs dans la ligne, separes par colonne
-     * @param name le nom qui doit etre dans la premiere colonne
-     * @throws FieldNameException lorsque le nom dans la premiere colonne n'est pas correct
+     * @param name   le nom qui doit etre dans la premiere colonne
+     *
+     * @throws FieldNameException  lorsque le nom dans la premiere colonne n'est pas correct
      * @throws EmptyFieldException losque la valeur dans la seconde colonne n'est pas remplie
      */
     private void checkLine(String[] values, String name) throws FieldNameException, EmptyFieldException {
@@ -216,24 +268,6 @@ public class InstanceReader {
     }
 
     /**
-     * Lecture de la prochaine ligne du fichier
-     * @param scanner lecteur du fichier
-     * @return les valeurs presentes dans les differentes colonnes (separees par des points-virgules)
-     */
-    private String[] nextLine(Scanner scanner) {
-        String[] values = null;
-        do {
-            if(!scanner.hasNextLine()) {
-                return new String[]{};
-            }
-            String line = scanner.nextLine();
-            values = line.split(";");
-            this.numLigne++;
-        } while (values.length == 0);
-        return values;
-    }
-    
-    /**
      * Classe interne qui represente une paire de dates.
      */
     class DebutFin {
@@ -244,7 +278,7 @@ public class InstanceReader {
             this.debut = debut;
             this.fin = fin;
         }
-        
+
         public void addTime(Date d) {
             debut = new Date(debut.getTime() + d.getTime());
             fin = new Date(fin.getTime() + d.getTime());
@@ -256,19 +290,6 @@ public class InstanceReader {
 
         public Date getFin() {
             return fin;
-        }
-    }
-
-    /**
-     * Un petite test pour verifier que tout fonctionne correctement.
-     */
-    public static void main(String[] args) {
-        try {
-            InstanceReader reader = new InstanceReader("instance_test.csv");
-            reader.readInstance();
-            System.out.println("Instance lue avec success !");
-        } catch (ReaderException ex) {
-            System.out.println(ex.getMessage());
         }
     }
 }
