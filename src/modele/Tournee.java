@@ -76,7 +76,6 @@ public class Tournee {
         return (int) ((fin.getTime() - debut.getTime()) / 1000 / 60);
     }
 
-
     public Instance getAppartient() {
         return appartient;
     }

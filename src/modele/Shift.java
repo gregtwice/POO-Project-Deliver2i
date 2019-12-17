@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
+
 @Entity
 public class Shift {
 
@@ -47,7 +48,6 @@ public class Shift {
         this.id = id;
     }
 
-
     public Solution getAppartient() {
         return appartient;
     }
@@ -60,6 +60,10 @@ public class Shift {
         return tempsTotal;
     }
 
+    /**
+     * Calcule la valeur du temps mort
+     * @return la valeur du temps mort du shift
+     */
     public int tempsMort() {
         int tm = 0;
         if (tournees.size() > 1) {

@@ -25,6 +25,7 @@ public class Test1 {
                 Solution s = new Solution();
                 s.setInstance(instance);
                 s.algoBasique();
+                instance.addSolution(s);
                 em.persist(instance);
                 em.persist(s);
                 et.commit();

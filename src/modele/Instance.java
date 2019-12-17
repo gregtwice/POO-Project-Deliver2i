@@ -5,6 +5,10 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
+@NamedQueries({
+
+        @NamedQuery(name = "Instance.All", query = "select e from Instance e")
+})
 @Entity
 public class Instance {
     @Basic
@@ -19,6 +23,8 @@ public class Instance {
     @OneToMany(mappedBy = "appartient", cascade = CascadeType.ALL)
     private Set<Tournee> tournees;
 
+    @OneToMany(mappedBy = "instance", cascade = CascadeType.ALL)
+    private Set<Solution> solutions;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -29,6 +35,7 @@ public class Instance {
         this.dureeMax = dureeMax;
         this.date = date;
         this.tournees = new HashSet<>();
+        this.solutions = new HashSet<>();
     }
 
     public Instance() {
@@ -87,15 +94,23 @@ public class Instance {
         this.tournees = tournees;
     }
 
+    public Set<Solution> getSolutions() {
+        return solutions;
+    }
+
+    public void addSolution(Solution solution) {
+        this.solutions.add(solution);
+        solution.setInstance(this);
+    }
+
     @Override
     public String toString() {
         return "Instance{" +
                 "nom='" + nom + '\'' +
-                ", dureeMin=" + dureeMin +
-                ", dureeMax=" + dureeMax +
-                ", date=" + date +
-                ", tournees=" + tournees +
-                ", id=" + id +
+//                ", dureeMin=" + dureeMin +
+//                ", dureeMax=" + dureeMax +
+//                ", date=" + date +
+//                ", id=" + id +
                 '}';
     }
 }

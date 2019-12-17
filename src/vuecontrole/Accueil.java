@@ -1,19 +1,38 @@
 package vuecontrole;
 
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
+import javax.persistence.Query;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.sql.SQLException;
+import java.util.List;
 
 public class Accueil extends JFrame {
-    private JList listeInstance;
+    private JList<modele.Instance> listeInstance;
     private JButton voirInstanceButton;
     private JPanel PanelAccueil;
+    private JButton actualiserButton;
 
 
+    public Accueil() {
+        super("Assurance");
+        initComponents();
+        remplirJList();
+        initConnexion();                                 // /!\
+        initialisationFenetre();
 
-    private void initComponents(){
+        actualiserButton.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                remplirJList();
+            }
+        });
+    }
+
+    private void initComponents() {
         voirInstanceButton.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -23,25 +42,15 @@ public class Accueil extends JFrame {
         });
     }
 
-    private void InstanceClicked() {
-        new Instance();
-        dispose();
-    }
+    private void initConnexion() {
 
-    public Accueil() {
-        super("Assurance");
-        initComponents();
-        initialisationFenetre();
-       // initConnexion();                                  /!\
-    }
 
-//    private void initConnexion() {
 //        try {
-//            assurance = RequeteAssurance.getInstance();
+//
 //        } catch (SQLException | ClassNotFoundException e) {
-//            showException(e);
+//
 //        }
-//    }
+    }
 
     private void initialisationFenetre() {
         setPreferredSize(new Dimension(400, 400));
@@ -52,9 +61,27 @@ public class Accueil extends JFrame {
         setVisible(true);
     }
 
+    private void InstanceClicked() {
+        new Instance();
+//        dispose();
+    }
+
     public static void main(String[] args) {
         Accueil a = new Accueil();
 
     }
 
+
+    private void remplirJList() {
+        final EntityManagerFactory emf = Persistence.createEntityManagerFactory("Deliver2iPU");
+        final EntityManager em = emf.createEntityManager();
+        Query query = em.createNamedQuery("Instance.All");
+        List<modele.Instance> instances = query.getResultList();
+        DefaultListModel<modele.Instance> defaultListModel = new DefaultListModel<>();
+        for (modele.Instance instance : instances) {
+            defaultListModel.addElement(instance);
+        }
+        listeInstance.setModel(defaultListModel);
+        listeInstance.setVisible(true);
+    }
 }

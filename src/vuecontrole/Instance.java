@@ -30,7 +30,7 @@ public class Instance extends JFrame{
     private void initialisationFenetre() {
         setPreferredSize(new Dimension(400, 400));
         setContentPane(PanelInstance);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         pack();
         setLocationRelativeTo(null);
         setVisible(true);
@@ -38,7 +38,6 @@ public class Instance extends JFrame{
 
     public static void main(String[] args) {
         Accueil a = new Accueil();
-
     }
 
 

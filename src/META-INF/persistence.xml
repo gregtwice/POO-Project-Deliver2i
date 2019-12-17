@@ -11,8 +11,8 @@
         <class>modele.Shift</class>
         <class>modele.Instance</class>
         <properties>
-                        <property name="eclipselink.ddl-generation" value="drop-and-create-tables"/>
-<!--            <property name="eclipselink.ddl-generation" value="none"/>-->
+<!--                        <property name="eclipselink.ddl-generation" value="drop-and-create-tables"/>-->
+            <property name="eclipselink.ddl-generation" value="none"/>
             <property name="eclipselink.create-ddl-jdbc-file-name" value="createDDL_ddlGeneration.jdbc"/>
             <property name="eclipselink.drop-ddl-jdbc-file-name" value="dropDDL_ddlGeneration.jdbc"/>
             <property name="eclipselink.ddl-generation.output-mode" value="both"/>
@@ -20,7 +20,7 @@
             <property name="javax.persistence.jdbc.driver" value="org.postgresql.Driver"/>
             <property name="javax.persistence.jdbc.user" value="postgres"/>
             <property name="javax.persistence.jdbc.password" value="root"/>
-            <property name="eclipselink.logging.level" value="fine"/>
+<!--            <property name="eclipselink.logging.level" value="fine"/>-->
         </properties>
     </persistence-unit>
 </persistence>
