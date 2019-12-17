@@ -2,5 +2,6 @@
 /.idea/
 /instances/
 /out/
+Projet.iml
 
 *.jdbc
