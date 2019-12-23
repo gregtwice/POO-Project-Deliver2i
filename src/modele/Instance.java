@@ -1,9 +1,11 @@
 package modele;
 
 import javax.persistence.*;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 @NamedQueries({
 
@@ -21,7 +23,7 @@ public class Instance {
     private Date date;
 
     @OneToMany(mappedBy = "appartient", cascade = CascadeType.ALL)
-    private Set<Tournee> tournees;
+    private List<Tournee> tournees;
 
     @OneToMany(mappedBy = "instance", cascade = CascadeType.ALL)
     private Set<Solution> solutions;
@@ -34,12 +36,12 @@ public class Instance {
         this.dureeMin = dureeMin;
         this.dureeMax = dureeMax;
         this.date = date;
-        this.tournees = new HashSet<>();
+        this.tournees = new ArrayList<>();
         this.solutions = new HashSet<>();
     }
 
     public Instance() {
-        this.tournees = new HashSet<>();
+        this.tournees = new ArrayList<>();
     }
 
     public Long getId() {
@@ -86,11 +88,11 @@ public class Instance {
         this.date = date;
     }
 
-    public Set<Tournee> getTournees() {
+    public List<Tournee> getTournees() {
         return tournees;
     }
 
-    public void setTournees(Set<Tournee> tournees) {
+    public void setTournees(List<Tournee> tournees) {
         this.tournees = tournees;
     }
 
@@ -112,5 +114,32 @@ public class Instance {
 //                ", date=" + date +
 //                ", id=" + id +
                 '}';
+    }
+
+    public void writeJson() {
+
+        try {
+            BufferedWriter bw = new BufferedWriter(new FileWriter(this.nom + ".js"));
+            bw.write("let solutions = [\n");
+            for (Solution solution : solutions) {
+                bw.write("{\n");
+                bw.write("\"shifts\":[");
+                for (Shift shift : solution.getShifts()) {
+                    bw.write("{id:" + shift.getId() + ", tournees:[");
+                    for (Tournee tournee : shift.getTournees()) {
+                        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
+                        bw.write("{id:" + tournee.getId() +
+                                ", debut:'" + sdf.format(tournee.getDebut()) +
+                                "', fin:'" + sdf.format(tournee.getFin()) + "'},\n");
+                    }
+                    bw.write("]},");
+                }
+                bw.write("]");
+            }
+            bw.write("}]");
+            bw.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

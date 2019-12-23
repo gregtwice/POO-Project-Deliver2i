@@ -12,8 +12,9 @@ public class Tournee {
     @ManyToOne(cascade = CascadeType.ALL)
     private Instance appartient;
 
-    @ManyToMany
+    @ManyToMany (mappedBy = "tournees")
     private Set<Shift> shifts;
+
     @Basic
     private Date debut;
     private Date fin;
@@ -30,6 +31,14 @@ public class Tournee {
 
     public Tournee() {
 
+    }
+
+    public Set<Shift> getShifts() {
+        return shifts;
+    }
+
+    public void setShifts(Set<Shift> shifts) {
+        this.shifts = shifts;
     }
 
     public Long getId() {
@@ -72,7 +81,7 @@ public class Tournee {
         return fin;
     }
 
-    public int temps() {
+    public int getTempsTournee() {
         return (int) ((fin.getTime() - debut.getTime()) / 1000 / 60);
     }
 
@@ -87,4 +96,5 @@ public class Tournee {
     public void addShift(Shift shift) {
         this.shifts.add(shift);
     }
+
 }

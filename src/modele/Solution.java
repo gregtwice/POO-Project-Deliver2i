@@ -1,8 +1,8 @@
 package modele;
 
 import javax.persistence.*;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 public class Solution {
@@ -15,9 +15,9 @@ public class Solution {
     private Instance instance;
 
     @OneToMany(mappedBy = "appartient", cascade = CascadeType.ALL)
-    private Set<Shift> shifts;
+    private List<Shift> shifts;
 
-    public Solution() {this.shifts = new HashSet<>();}
+    public Solution() {this.shifts = new ArrayList<>();}
 
     public Long getId() {
         return id;
@@ -35,11 +35,11 @@ public class Solution {
         this.instance = instance;
     }
 
-    public Set<Shift> getShifts() {
+    public List<Shift> getShifts() {
         return shifts;
     }
 
-    public void setShifts(Set<Shift> shifts) {
+    public void setShifts(List<Shift> shifts) {
         this.shifts = shifts;
     }
 
@@ -61,4 +61,27 @@ public class Solution {
 
     }
 
+    public void algoBourrage() {
+        Shift currshift = new Shift(instance.getDureeMin(), instance.getDureeMax());
+        this.shifts.add(currshift);
+        for (Tournee tournee : instance.getTournees()) {
+            boolean flaginsert = false;
+            for (Shift shift : shifts) {
+                if (shift.addTournee(tournee)) {
+                    flaginsert = true;
+                    break;
+                }
+            }
+            if (!flaginsert){
+                currshift = new Shift(instance.getDureeMin(), instance.getDureeMax());
+                currshift.addTournee(tournee);
+                this.shifts.add(currshift);
+            }
+        }
+        int tempsMort = 0;
+        for (Shift shift : shifts) {
+            tempsMort += shift.tempsMort();
+        }
+        System.out.println(tempsMort);
+    }
 }

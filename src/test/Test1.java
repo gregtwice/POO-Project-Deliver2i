@@ -22,10 +22,19 @@ public class Test1 {
                 et.begin();
                 InstanceReader reader = new InstanceReader("instances/instance_" + i + ".csv");
                 Instance instance = reader.readInstance();
+                instance.getTournees().sort((o1, o2) -> o1.getDebut().compareTo(o2.getDebut()));
                 Solution s = new Solution();
+//                s.setInstance(instance);
+//                s.algoBasique();
+//                instance.addSolution(s);
+//                s = new Solution();
                 s.setInstance(instance);
-                s.algoBasique();
+                s.algoBourrage();
                 instance.addSolution(s);
+//                ArrayList<Tournee> tournees = new ArrayList<>(instance.getTournees());
+
+//                instance.setTournees(new HashSet<>(tournees));
+                instance.writeJson();
                 em.persist(instance);
                 em.persist(s);
                 et.commit();
