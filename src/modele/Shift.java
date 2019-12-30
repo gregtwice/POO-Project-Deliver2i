@@ -1,8 +1,9 @@
 package modele;
 
+import utils.DateMath;
+
 import javax.persistence.*;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 
@@ -82,30 +83,29 @@ public class Shift {
      * @return la valeur du temps mort du shift
      */
     public int tempsMort() {
-        int tempsMort = 0;
-        if (tournees.size() > 1) {
-            ArrayList<Tournee> tourneesArrayList = new ArrayList<>(this.tournees);
-            for (int i = 0; i < tourneesArrayList.size() - 1; i++) {
-
-            }
-//            throw new UnsupportedOperationException("Not Implemented yet");
-        } else {
-            Iterator<Tournee> iter = tournees.iterator();
-            Tournee tournee = iter.next();
-            if (tournee.getTempsTournee() > this.DUREE_MIN) {
-                tempsMort = 0;
-            } else {
-                tempsMort = this.DUREE_MIN - tournee.getTempsTournee();
-            }
+        int duree = 0;
+        for (Tournee tourne : tournees) {
+            duree += tourne.getTempsTournee();
         }
-
-        return tempsMort;
+        if (duree < this.DUREE_MIN) {
+            return (DUREE_MIN - duree);
+        } else {
+            return DateMath.Diff2DatesMin(tournees.get(tournees.size() - 1).getFin(), tournees.get(0).getDebut()) - duree;
+        }
     }
 
     public List<Tournee> getTournees() {
         return tournees;
     }
 
+    /**
+     * Ajoute une tournée au shift
+     *
+     * @param tournee La tournée à ajouter, la tournée ne doit pas se superposer avec les tournées déja présentes dans
+     *                le shift
+     *
+     * @return true si la tournée a été ajoutée, false sinon
+     */
     public boolean addTournee(Tournee tournee) {
         // Si le shift est vide, alors on ajoute
         if (tournees.isEmpty()) {
@@ -132,5 +132,38 @@ public class Shift {
         return true;
     }
 
+    /**
+     * Vérifie que le temps total de la tournée est supérieur au temps minimal défini par l'instance
+     * @return true si le temps total de la tournée est supérieur, false sinon
+     */
+    public boolean hasTempsMinimum() {
+        int temps = 0;
+        for (int i = 0; i < tournees.size(); i++) {
+            Tournee tournee = tournees.get(i);
+            temps += tournee.getTempsTournee();
+            if (i != 0) {
+                temps += (tournee.getDebut().getTime() - tournees.get(i - 1).getFin().getTime()) / 1000 / 60;
+            }
+        }
+        return temps > this.DUREE_MIN;
+    }
 
+    /**
+     * Retire la dernière tournée du shift
+     * @return la tournée qui a été retirée
+     */
+    public Tournee popTournee() {
+        return this.tournees.remove(this.tournees.size() - 1);
+    }
+
+    @Override
+    public String toString() {
+        return "Shift{" +
+                "id=" + id +
+                ", DUREE_MIN=" + DUREE_MIN +
+                ", DUREE_MAX=" + DUREE_MAX +
+                ", tournees=" + tournees +
+                ", tempsTotal=" + tempsTotal +
+                '}';
+    }
 }

@@ -4,13 +4,15 @@ import javax.persistence.*;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
 @NamedQueries({
-
         @NamedQuery(name = "Instance.All", query = "select e from Instance e")
 })
+
 @Entity
 public class Instance {
     @Basic
@@ -31,6 +33,13 @@ public class Instance {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    /**
+     * Constructeur de la classe
+     * @param nom Le nom de l'instance, contenu en général dans un fichier instance.csv
+     * @param dureeMin La durée minimale d'un shift
+     * @param dureeMax La durée maximale d'un shift
+     * @param date La date du jour contenue dans la fichier
+     */
     public Instance(String nom, int dureeMin, int dureeMax, Date date) {
         this.nom = nom;
         this.dureeMin = dureeMin;
@@ -44,14 +53,25 @@ public class Instance {
         this.tournees = new ArrayList<>();
     }
 
+    /**
+     * @return L'id de l'instance
+     */
     public Long getId() {
         return id;
     }
 
+    /**
+     * Met a jour l'id de l'instance
+     * @param id un id supérieur à 0
+     */
     public void setId(Long id) {
         this.id = id;
     }
 
+    /**
+     * Ajoute une tournée à l'instance
+     * @param tournee
+     */
     public void addTournee(Tournee tournee) {
         this.tournees.add(tournee);
     }
@@ -100,6 +120,30 @@ public class Instance {
         return solutions;
     }
 
+    /**
+     * Appelle toutes les fonctions contenant le mot "algo" de la classe solution
+     */
+    public void allAlgos() {
+        for (Method m : Solution.class.getMethods()) {
+            if (m.getName().contains("algo")) {
+                if (m.getName().contains("Basique"))
+                    continue;
+                Solution s = new Solution();
+                s.setInstance(this);
+                try {
+                    System.out.print("\t" + m.getName() + " : \t");
+                    m.invoke(s);
+                } catch (IllegalAccessException | InvocationTargetException e) {
+                    e.printStackTrace();
+                }
+                s.setNomAlgo(m.getName());
+                addSolution(s);
+            }
+        }
+
+
+    }
+
     public void addSolution(Solution solution) {
         this.solutions.add(solution);
         solution.setInstance(this);
@@ -109,34 +153,42 @@ public class Instance {
     public String toString() {
         return "Instance{" +
                 "nom='" + nom + '\'' +
-//                ", dureeMin=" + dureeMin +
-//                ", dureeMax=" + dureeMax +
-//                ", date=" + date +
-//                ", id=" + id +
                 '}';
     }
 
+    /**
+     * Crée un fichier Json représentant l'instance pour l'utiliser avec un outil de visualisation
+     */
     public void writeJson() {
-
         try {
-            BufferedWriter bw = new BufferedWriter(new FileWriter(this.nom + ".js"));
-            bw.write("let solutions = [\n");
+            BufferedWriter bw = new BufferedWriter(new FileWriter("javascript/" + this.nom + ".json"));
+            bw.write("[\n");
+            String ssprefix = "";
             for (Solution solution : solutions) {
+                bw.write(ssprefix);
+                ssprefix = ",";
                 bw.write("{\n");
+                bw.write("\"nom\":\"" + solution.getNomAlgo() + "\",");
                 bw.write("\"shifts\":[");
+                String sprefix = "";
                 for (Shift shift : solution.getShifts()) {
-                    bw.write("{id:" + shift.getId() + ", tournees:[");
+                    bw.write(sprefix);
+                    sprefix = ",";
+                    bw.write("{\"id\":" + shift.getId() + ", \"tournees\":[");
+                    StringBuilder str = new StringBuilder();
+                    String tprefix = "";
+                    SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
                     for (Tournee tournee : shift.getTournees()) {
-                        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
-                        bw.write("{id:" + tournee.getId() +
-                                ", debut:'" + sdf.format(tournee.getDebut()) +
-                                "', fin:'" + sdf.format(tournee.getFin()) + "'},\n");
+                        str.append(tprefix);
+                        tprefix = ",";
+                        str.append("{\"id\":").append(tournee.getId()).append(", \"debut\":\"").append(sdf.format(tournee.getDebut())).append("\", \"fin\":\"").append(sdf.format(tournee.getFin())).append("\"}");
                     }
-                    bw.write("]},");
+                    bw.write(str.toString());
+                    bw.write("\n]}");
                 }
-                bw.write("]");
+                bw.write("]}");
             }
-            bw.write("}]");
+            bw.write("]");
             bw.close();
         } catch (IOException e) {
             e.printStackTrace();

@@ -4,11 +4,13 @@ import io.InstanceReader;
 import io.exception.ReaderException;
 import modele.Instance;
 import modele.Solution;
+import modele.Tournee;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
 import javax.persistence.Persistence;
+import java.util.Comparator;
 
 public class Test1 {
 
@@ -22,21 +24,12 @@ public class Test1 {
                 et.begin();
                 InstanceReader reader = new InstanceReader("instances/instance_" + i + ".csv");
                 Instance instance = reader.readInstance();
-                instance.getTournees().sort((o1, o2) -> o1.getDebut().compareTo(o2.getDebut()));
-                Solution s = new Solution();
-//                s.setInstance(instance);
-//                s.algoBasique();
-//                instance.addSolution(s);
-//                s = new Solution();
-                s.setInstance(instance);
-                s.algoBourrage();
-                instance.addSolution(s);
-//                ArrayList<Tournee> tournees = new ArrayList<>(instance.getTournees());
-
-//                instance.setTournees(new HashSet<>(tournees));
+                System.out.println(instance.getNom());
+                instance.getTournees().sort(Comparator.comparing(Tournee::getDebut));
+                instance.allAlgos();
                 instance.writeJson();
                 em.persist(instance);
-                em.persist(s);
+//                em.persist(s);
                 et.commit();
             }
             em.close();
