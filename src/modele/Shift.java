@@ -28,7 +28,7 @@ public class Shift {
     @Column(name = "DUREE_MAX")
     private int DUREE_MAX;
 
-    @ManyToMany()
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "tournee_in_shift",
             joinColumns = @JoinColumn(name = "tournee_id"),
@@ -137,6 +137,7 @@ public class Shift {
 
     /**
      * Vérifie que le temps total de la tournée est supérieur au temps minimal défini par l'instance
+     *
      * @return true si le temps total de la tournée est supérieur, false sinon
      */
     public boolean hasTempsMinimum() {
@@ -153,6 +154,7 @@ public class Shift {
 
     /**
      * Retire la dernière tournée du shift
+     *
      * @return la tournée qui a été retirée
      */
     public Tournee popTournee() {

@@ -10,7 +10,8 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 @NamedQueries({
-        @NamedQuery(name = "Instance.All", query = "select e from Instance e")
+        @NamedQuery(name = "Instance.All", query = "select e from Instance e"),
+        @NamedQuery(name = "Instance.Solutions", query = "select s from Solution s where s.instance.id= :id")
 })
 
 @Entity
@@ -35,10 +36,11 @@ public class Instance {
 
     /**
      * Constructeur de la classe
-     * @param nom Le nom de l'instance, contenu en général dans un fichier instance.csv
+     *
+     * @param nom      Le nom de l'instance, contenu en général dans un fichier instance.csv
      * @param dureeMin La durée minimale d'un shift
      * @param dureeMax La durée maximale d'un shift
-     * @param date La date du jour contenue dans la fichier
+     * @param date     La date du jour contenue dans la fichier
      */
     public Instance(String nom, int dureeMin, int dureeMax, Date date) {
         this.nom = nom;
@@ -63,6 +65,7 @@ public class Instance {
 
     /**
      * Met a jour l'id de l'instance
+     *
      * @param id un id supérieur à 0
      */
     public void setId(Long id) {
@@ -71,6 +74,7 @@ public class Instance {
 
     /**
      * Ajoute une tournée à l'instance
+     *
      * @param tournee
      */
     public void addTournee(Tournee tournee) {
@@ -154,6 +158,7 @@ public class Instance {
     public String toString() {
         return "Instance{" +
                 "nom='" + nom + '\'' +
+                ", id=" + id +
                 '}';
     }
 

@@ -18,7 +18,7 @@ public class Accueil extends JFrame {
 
 
     public Accueil() {
-        super("Assurance");
+        super("Deliver 2i");
         initComponents();
         remplirJList();
         initConnexion();                                 // /!\
@@ -77,6 +77,7 @@ public class Accueil extends JFrame {
         final EntityManager em = emf.createEntityManager();
         Query query = em.createNamedQuery("Instance.All");
         List<modele.Instance> instances = query.getResultList();
+        System.out.println(instances);
         DefaultListModel<modele.Instance> defaultListModel = new DefaultListModel<>();
         for (modele.Instance instance : instances) {
             defaultListModel.addElement(instance);

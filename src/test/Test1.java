@@ -7,11 +7,9 @@ import modele.Solution;
 import modele.Tournee;
 import vuecontrole.Accueil;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.EntityTransaction;
-import javax.persistence.Persistence;
+import javax.persistence.*;
 import java.util.Comparator;
+import java.util.List;
 
 public class Test1 {
 
@@ -33,13 +31,16 @@ public class Test1 {
 //                em.persist(s);
                 et.commit();
             }
+            Query query = em.createNamedQuery("Instance.All");
+            List <Instance> instances = query.getResultList();
+            System.out.println(instances);
             em.close();
             emf.close();
 
             System.out.println("Instance lue avec success !");
         } catch (ReaderException ex) {
-            System.out.println(ex.getMessage());
+            System.err.println(ex.getMessage());
         }
-        Accueil a = new Accueil();
+//        Accueil a = new Accueil();
     }
 }

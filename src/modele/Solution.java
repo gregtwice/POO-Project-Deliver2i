@@ -17,7 +17,6 @@ public class Solution {
     @OneToMany(mappedBy = "appartient", cascade = CascadeType.ALL)
     private List<Shift> shifts;
 
-    @Transient
     private String nomAlgo;
 
     /**
@@ -87,6 +86,7 @@ public class Solution {
      */
     public void algoBourrage() {
         Shift currshift = new Shift(instance.getDureeMin(), instance.getDureeMax());
+        currshift.setAppartient(this);
         this.shifts.add(currshift);
         for (Tournee tournee : instance.getTournees()) {
             boolean flaginsert = false;
@@ -99,6 +99,7 @@ public class Solution {
             if (!flaginsert) {
                 currshift = new Shift(instance.getDureeMin(), instance.getDureeMax());
                 currshift.addTournee(tournee);
+                currshift.setAppartient(this);
                 this.shifts.add(currshift);
             }
         }
@@ -112,6 +113,7 @@ public class Solution {
      */
     public void algoCollage() {
         Shift currShift = new Shift(this.instance.getDureeMin(), this.instance.getDureeMax());
+        currShift.setAppartient(this);
         // Pour chaque shift on cherche à coller les tournées le plus possible.
         // Si le shift
         this.shifts.add(currShift);
@@ -127,6 +129,7 @@ public class Solution {
             }
             if (!flaginsert) {
                 currShift = new Shift(instance.getDureeMin(), instance.getDureeMax());
+                currShift.setAppartient(this);
                 currShift.addTournee(tournee);
                 this.shifts.add(currShift);
             }
@@ -143,6 +146,7 @@ public class Solution {
      */
     public void algoCollageOpti() {
         Shift currShift = new Shift(this.instance.getDureeMin(), this.instance.getDureeMax());
+        currShift.setAppartient(this);
         // Pour chaque shift on cherche à coller les tournées le plus possible.
         // Si le shift
         this.shifts.add(currShift);
@@ -158,6 +162,7 @@ public class Solution {
             }
             if (!flaginsert) {
                 currShift = new Shift(instance.getDureeMin(), instance.getDureeMax());
+                currShift.setAppartient(this);
                 currShift.addTournee(tournee);
                 this.shifts.add(currShift);
             }
@@ -194,7 +199,12 @@ public class Solution {
         int tempsMort = 0;
         tempsMort = getTempsMort(tempsMort);
         System.out.println(tempsMort);
-
     }
 
+    @Override
+    public String toString() {
+        return "Solution{" +
+                "nomAlgo='" + nomAlgo + '\'' +
+                '}';
+    }
 }

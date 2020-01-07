@@ -16,7 +16,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class Instance extends JFrame{
+public class Instance extends JFrame {
     private JPanel PanelInstance;
     private JList listInstances;
     private JList listShift;
@@ -27,7 +27,17 @@ public class Instance extends JFrame{
     private modele.Instance instance;
 
 
-    private void initComponents(){
+    public Instance(Accueil accueil) {
+        super("Instance");
+        this.accueil = accueil;
+        this.instance = new modele.Instance();
+        initComponents();
+        initialisationFenetre();
+        remplirListInstances();
+        // initConnexion();                                  /!\
+    }
+
+    private void initComponents() {
         retourBouton.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -41,9 +51,9 @@ public class Instance extends JFrame{
             public void mouseClicked(MouseEvent e) {
                 super.mouseClicked(e);
                 modele.Instance selectedValue = (modele.Instance) listInstances.getSelectedValue();
-                if (selectedValue != null){
+                if (selectedValue != null) {
                     try {
-                        InstanceReader reader = new InstanceReader("instances/"+selectedValue.getNom().toLowerCase()+".csv");
+                        InstanceReader reader = new InstanceReader("instances/" + selectedValue.getNom().toLowerCase() + ".csv");
 //                        instance = reader.readInstance();
                         instance = selectedValue;
                         Solution s = new Solution();
@@ -58,32 +68,6 @@ public class Instance extends JFrame{
             }
         });
     }
-
-
-    private void calculShift() {
-        Set<Solution> solutions = new HashSet<>();
-        solutions = this.instance.getSolutions();
-        for (Solution solution:solutions) {
-            solution.algoBasique();
-        }
-        remplirListShift();
-    }
-
-    private void retourBoutonClicked() {
-        this.accueil.setVisible(true);
-        dispose();
-    }
-
-    public Instance(Accueil accueil) {
-        super("Instance");
-        this.accueil=accueil;
-        this.instance = new modele.Instance();
-        initComponents();
-        initialisationFenetre();
-        remplirListInstances();
-        // initConnexion();                                  /!\
-    }
-
 
     private void initialisationFenetre() {
         setPreferredSize(new Dimension(400, 400));
@@ -107,21 +91,45 @@ public class Instance extends JFrame{
         listInstances.setVisible(true);
     }
 
+    private void retourBoutonClicked() {
+        this.accueil.setVisible(true);
+        dispose();
+    }
 
+    private void calculShift() {
+        Set<Solution> solutions = new HashSet<>();
+        //        for (Solution solution:solutions) {
+//            solution.algoBasique();
+//        }
+        remplirListShift();
+    }
 
     private void remplirListShift() {
         final EntityManagerFactory emf = Persistence.createEntityManagerFactory("Deliver2iPU");
         final EntityManager em = emf.createEntityManager();
-        Query query = em.createNamedQuery("Shift.Sol");
-        query.setParameter("id",instance.getId());
+        Query query = em.createNamedQuery("Instance.Solutions").setParameter("id", instance.getId());
+        List<Solution> solutions = query.getResultList();
+        query = em.createNamedQuery("Shift.Sol");
+        query.setParameter("id", solutions.get(0).getId());
         List<modele.Shift> shifts = query.getResultList();
-        System.out.println(shifts);
         DefaultListModel<modele.Shift> defaultListModel = new DefaultListModel<>();
         for (modele.Shift shift : shifts) {
             defaultListModel.addElement(shift);
         }
         listShift.setModel(defaultListModel);
         listShift.setVisible(true);
+        // Combo Box
+
+        DefaultComboBoxModel<Solution> dcbm = new DefaultComboBoxModel<>();
+        for (Solution solution : solutions) {
+            dcbm.addElement(solution);
+        }
+        comboBox1.setModel(dcbm);
+
+
+        em.close();
+        emf.close();
+
     }
 
 
