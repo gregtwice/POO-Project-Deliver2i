@@ -40,6 +40,7 @@ public class Instance {
 
     public Instance() {
         this.tournees = new HashSet<>();
+        this.solutions = new HashSet<>();
     }
 
     public Long getId() {

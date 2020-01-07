@@ -6,6 +6,9 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
+@NamedQueries({
+        @NamedQuery(name = "Shift.Sol", query = "select e from Shift e where e.appartient.id = :id")
+})
 
 @Entity
 public class Shift {
@@ -20,7 +23,7 @@ public class Shift {
     @Column(name = "DUREE_MAX")
     private int DUREE_MAX;
 
-    @OneToMany( cascade = CascadeType.ALL)
+    @OneToMany( cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private Set<Tournee> tournees;
 
     @ManyToOne(cascade = CascadeType.ALL)
@@ -79,7 +82,6 @@ public class Shift {
                 tm = this.DUREE_MIN - t.temps();
             }
         }
-
         return tm;
     }
 
@@ -91,5 +93,13 @@ public class Shift {
         return true;
     }
 
-
+    @Override
+    public String toString() {
+        return "Shift{" +
+                "id=" + id +
+                ", DUREE_MIN=" + DUREE_MIN +
+                ", DUREE_MAX=" + DUREE_MAX +
+                ", tournees=" + tournees +
+                '}';
+    }
 }
