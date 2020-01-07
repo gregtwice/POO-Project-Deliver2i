@@ -11,7 +11,7 @@ import java.awt.event.MouseEvent;
 import java.util.List;
 
 public class Accueil extends JFrame {
-    private JList<modele.Instance> listeInstance;
+    private JList<modele.Instance> listeInstances;
     private JButton voirInstanceButton;
     private JPanel PanelAccueil;
     private JButton actualiserButton;
@@ -62,8 +62,8 @@ public class Accueil extends JFrame {
     }
 
     private void InstanceClicked() {
-        new Instance();
-//        dispose();
+        new Instance(this);
+        dispose();
     }
 
     public static void main(String[] args) {
@@ -81,7 +81,8 @@ public class Accueil extends JFrame {
         for (modele.Instance instance : instances) {
             defaultListModel.addElement(instance);
         }
-        listeInstance.setModel(defaultListModel);
-        listeInstance.setVisible(true);
+        listeInstances.setModel(defaultListModel);
+        listeInstances.setVisible(true);
     }
+
 }

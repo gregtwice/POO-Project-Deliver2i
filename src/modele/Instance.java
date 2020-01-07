@@ -51,6 +51,7 @@ public class Instance {
 
     public Instance() {
         this.tournees = new ArrayList<>();
+        this.solutions = new HashSet<>();
     }
 
     /**

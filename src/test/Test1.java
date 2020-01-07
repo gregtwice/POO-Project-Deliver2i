@@ -5,6 +5,7 @@ import io.exception.ReaderException;
 import modele.Instance;
 import modele.Solution;
 import modele.Tournee;
+import vuecontrole.Accueil;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -39,5 +40,6 @@ public class Test1 {
         } catch (ReaderException ex) {
             System.out.println(ex.getMessage());
         }
+        Accueil a = new Accueil();
     }
 }

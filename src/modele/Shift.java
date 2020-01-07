@@ -6,6 +6,9 @@ import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
+@NamedQueries({
+        @NamedQuery(name = "Shift.Sol", query = "select e from Shift e where e.appartient.id = :id")
+})
 
 @Entity
 public class Shift {
