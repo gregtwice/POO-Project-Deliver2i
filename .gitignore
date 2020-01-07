@@ -6,3 +6,5 @@ Projet.iml
 *.jdbc
 
 javascript/
+
+src/META-INF/
