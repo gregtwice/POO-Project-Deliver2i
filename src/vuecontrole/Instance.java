@@ -10,6 +10,8 @@ import javax.persistence.Persistence;
 import javax.persistence.Query;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.lang.ref.PhantomReference;
@@ -24,6 +26,7 @@ public class Instance extends JFrame {
     private JComboBox solComboBox;
     //private Accueil accueil;
     private modele.Instance instance;
+    private Solution selectedSolution;
 
 
     public Instance() {
@@ -33,6 +36,7 @@ public class Instance extends JFrame {
 
         initialisationFenetre();
         remplirListInstances();
+        selectedSolution = null;
         // initConnexion();                                  /!\
         listInstances.addMouseListener(new MouseAdapter() {
             @Override
@@ -47,6 +51,16 @@ public class Instance extends JFrame {
             public void mouseClicked(MouseEvent e) {
                 super.mouseClicked(e);
                 changerSolution();
+            }
+        });
+        comboBox1.addItemListener(new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                System.out.println(e.getItem());
+                if (e.getItem() != selectedSolution) {
+                    selectedSolution = (Solution) e.getItem();
+                    actualiserListeShift();
+                }
             }
         });
     }
@@ -83,6 +97,23 @@ public class Instance extends JFrame {
         remplirListShift();
     }
 
+    private void actualiserListeShift() {
+        final EntityManagerFactory emf = Persistence.createEntityManagerFactory("Deliver2iPU");
+        final EntityManager em = emf.createEntityManager();
+        Query query = em.createNamedQuery("Instance.Solutions").setParameter("id", instance.getId());
+        List<Solution> solutions = query.getResultList();
+        query = em.createNamedQuery("Shift.Sol");
+        query.setParameter("id", selectedSolution.getId());
+        selectedSolution = solutions.get(0);
+        List<modele.Shift> shifts = query.getResultList();
+        DefaultListModel<modele.Shift> defaultListModel = new DefaultListModel<>();
+        for (modele.Shift shift : shifts) {
+            defaultListModel.addElement(shift);
+        }
+        listShift.setModel(defaultListModel);
+        listShift.setVisible(true);
+    }
+
     private void remplirListShift() {
         final EntityManagerFactory emf = Persistence.createEntityManagerFactory("Deliver2iPU");
         final EntityManager em = emf.createEntityManager();
@@ -90,6 +121,7 @@ public class Instance extends JFrame {
         List<Solution> solutions = query.getResultList();
         query = em.createNamedQuery("Shift.Sol");
         query.setParameter("id", solutions.get(0).getId());
+        selectedSolution = solutions.get(0);
         List<modele.Shift> shifts = query.getResultList();
         DefaultListModel<modele.Shift> defaultListModel = new DefaultListModel<>();
         for (modele.Shift shift : shifts) {
@@ -111,25 +143,6 @@ public class Instance extends JFrame {
 
     }
 
-    private void changerSolution(){
-        listShift.removeAll();
-        final EntityManagerFactory emf = Persistence.createEntityManagerFactory("Deliver2iPU");
-        final EntityManager em = emf.createEntityManager();
-        Query query = em.createNamedQuery("Shift.Sol");
-        System.out.println(solComboBox.getSelectedItem());
-        query.setParameter("id", solComboBox.getSelectedItem());
-        List<modele.Shift> shifts = query.getResultList();
-        DefaultListModel<modele.Shift> defaultListModel = new DefaultListModel<>();
-        for (modele.Shift shift : shifts) {
-            defaultListModel.addElement(shift);
-        }
-        listShift.setModel(defaultListModel);
-        listShift.setVisible(true);
-
-        em.close();
-        emf.close();
-
-    }
 
 
     public static void main(String[] args) {
