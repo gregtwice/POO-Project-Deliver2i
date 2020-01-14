@@ -54,7 +54,7 @@ public class InstanceReader {
     }
 
     /**
-     * Un petite test pour verifier que tout fonctionne correctement.
+     * Un petit test pour verifier que tout fonctionne correctement.
      */
     public static void main(String[] args) {
         try {
@@ -67,7 +67,7 @@ public class InstanceReader {
     }
 
     /**
-     * Methoide principale pour lire le fichier d'instance.
+     * Methode principale pour lire le fichier d'instance.
      *
      * @return L'instance Lue
      *
