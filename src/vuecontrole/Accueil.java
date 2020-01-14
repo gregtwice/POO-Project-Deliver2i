@@ -62,7 +62,7 @@ public class Accueil extends JFrame {
     }
 
     private void InstanceClicked() {
-        new Instance(this);
+        new Instance();
         dispose();
     }
 

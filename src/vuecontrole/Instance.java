@@ -12,6 +12,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.lang.ref.PhantomReference;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -20,54 +21,36 @@ public class Instance extends JFrame {
     private JPanel PanelInstance;
     private JList listInstances;
     private JList listShift;
-    private JButton calculButton;
-    private JButton retourBouton;
-    private JComboBox comboBox1;
-    private Accueil accueil;
+    private JComboBox solComboBox;
+    //private Accueil accueil;
     private modele.Instance instance;
 
 
-    public Instance(Accueil accueil) {
+    public Instance() {
         super("Instance");
-        this.accueil = accueil;
+//        this.accueil = accueil;
         this.instance = new modele.Instance();
-        initComponents();
+
         initialisationFenetre();
         remplirListInstances();
         // initConnexion();                                  /!\
-    }
-
-    private void initComponents() {
-        retourBouton.addMouseListener(new MouseAdapter() {
+        listInstances.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                instance = (modele.Instance) listInstances.getSelectedValue();
+                remplirListShift();
+                super.mouseClicked(e);
+            }
+        });
+        solComboBox.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 super.mouseClicked(e);
-                retourBoutonClicked();
-            }
-        });
-
-        calculButton.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                super.mouseClicked(e);
-                modele.Instance selectedValue = (modele.Instance) listInstances.getSelectedValue();
-                if (selectedValue != null) {
-                    try {
-                        InstanceReader reader = new InstanceReader("instances/" + selectedValue.getNom().toLowerCase() + ".csv");
-//                        instance = reader.readInstance();
-                        instance = selectedValue;
-                        Solution s = new Solution();
-                        instance.addSolution(s);
-                        calculShift();
-                    } catch (ReaderException e1) {
-                        e1.printStackTrace();
-                    }
-
-                }
-
+                changerSolution();
             }
         });
     }
+
 
     private void initialisationFenetre() {
         setPreferredSize(new Dimension(400, 400));
@@ -91,10 +74,6 @@ public class Instance extends JFrame {
         listInstances.setVisible(true);
     }
 
-    private void retourBoutonClicked() {
-        this.accueil.setVisible(true);
-        dispose();
-    }
 
     private void calculShift() {
         Set<Solution> solutions = new HashSet<>();
@@ -124,8 +103,28 @@ public class Instance extends JFrame {
         for (Solution solution : solutions) {
             dcbm.addElement(solution);
         }
-        comboBox1.setModel(dcbm);
+        solComboBox.setModel(dcbm);
 
+
+        em.close();
+        emf.close();
+
+    }
+
+    private void changerSolution(){
+        listShift.removeAll();
+        final EntityManagerFactory emf = Persistence.createEntityManagerFactory("Deliver2iPU");
+        final EntityManager em = emf.createEntityManager();
+        Query query = em.createNamedQuery("Shift.Sol");
+        System.out.println(solComboBox.getSelectedItem());
+        query.setParameter("id", solComboBox.getSelectedItem());
+        List<modele.Shift> shifts = query.getResultList();
+        DefaultListModel<modele.Shift> defaultListModel = new DefaultListModel<>();
+        for (modele.Shift shift : shifts) {
+            defaultListModel.addElement(shift);
+        }
+        listShift.setModel(defaultListModel);
+        listShift.setVisible(true);
 
         em.close();
         emf.close();
@@ -134,8 +133,7 @@ public class Instance extends JFrame {
 
 
     public static void main(String[] args) {
-        Accueil a = new Accueil();
+        Instance I = new Instance();
     }
-
 
 }

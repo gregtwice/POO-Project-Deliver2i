@@ -1,7 +1,9 @@
 package modele;
 
 import javax.persistence.*;
+import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Entity
@@ -199,6 +201,47 @@ public class Solution {
         int tempsMort = 0;
         tempsMort = getTempsMort(tempsMort);
         System.out.println(tempsMort);
+    }
+
+    public void algoTdebTfin(){
+        Shift currShift = new Shift(this.instance.getDureeMin(), this.instance.getDureeMax());
+        currShift.setAppartient(this);
+        this.shifts.add(currShift);
+        long  plusPetitTempsMort=Long.MAX_VALUE;
+        boolean flaginsert = false;
+
+
+        for (Tournee tournee1 : instance.getTournees()) {
+            Timestamp ts1= new Timestamp(tournee1.getFin().getTime());
+
+
+            for (Tournee tournee2 : instance.getTournees()) {
+                Timestamp ts2= new Timestamp(tournee2.getFin().getTime());
+                Tournee plusProcheTournee = new Tournee();
+
+                if (ts1.compareTo(ts2) < plusPetitTempsMort){
+                    plusPetitTempsMort=ts1.compareTo(ts2);
+                    plusProcheTournee = tournee2;
+                }
+                
+            }
+
+                for (Shift shift : shifts) {
+                    if (shift.addTournee(tournee)) {
+                        flaginsert = true;
+                        break;
+                    }
+                }
+                if (!flaginsert) {
+                    currshift = new Shift(instance.getDureeMin(), instance.getDureeMax());
+                    currshift.addTournee(tournee);
+                    currshift.setAppartient(this);
+                    this.shifts.add(currshift);
+                }
+
+
+        }
+
     }
 
     @Override
