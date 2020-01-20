@@ -1,9 +1,7 @@
 package modele;
 
 import javax.persistence.*;
-import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 @Entity
@@ -24,7 +22,9 @@ public class Solution {
     /**
      * Constructeur de la classe
      */
-    public Solution() {this.shifts = new ArrayList<>();}
+    public Solution() {
+        this.shifts = new ArrayList<>();
+    }
 
     public Long getId() {
         return id;
@@ -60,8 +60,10 @@ public class Solution {
 
     /**
      * Algorithme le moins optimisé, il crée un shift pour chaque tournée
+     *
+     * @return
      */
-    public void algoBasique() {
+    public int algoBasique() {
         for (Tournee tournee : instance.getTournees()) {
             Shift curShift = new Shift(instance.getDureeMin(), instance.getDureeMax());
             curShift.setAppartient(this);
@@ -70,23 +72,28 @@ public class Solution {
             shifts.add(curShift);
         }
 
-        int tempsMort = 0;
-        tempsMort = getTempsMort(tempsMort);
+        int tempsMort = getTempsMort();
         System.out.println(tempsMort);
-
+        return tempsMort;
     }
 
-    private int getTempsMort(int tempsMort) {
+    private int getTempsMort() {
+        int tempsMort = 0;
+        int tournees = 0;
         for (Shift shift : shifts) {
             tempsMort += shift.tempsMort();
+            tournees += shift.getTournees().size();
         }
+        System.out.print("\tnb Tournées = " + tournees + " \t");
         return tempsMort;
     }
 
     /**
      * Algorithme qui ajoute un maximum de tournées au shift
+     *
+     * @return
      */
-    public void algoBourrage() {
+    public int algoBourrage() {
         Shift currshift = new Shift(instance.getDureeMin(), instance.getDureeMax());
         currshift.setAppartient(this);
         this.shifts.add(currshift);
@@ -105,15 +112,17 @@ public class Solution {
                 this.shifts.add(currshift);
             }
         }
-        int tempsMort = 0;
-        tempsMort = getTempsMort(tempsMort);
+        int tempsMort = getTempsMort();
         System.out.println(tempsMort);
+        return tempsMort;
     }
 
     /**
      * Algorithme qui remplit les tournées jusqu'a la durée minimale
+     *
+     * @return
      */
-    public void algoCollage() {
+    public int algoCollage() {
         Shift currShift = new Shift(this.instance.getDureeMin(), this.instance.getDureeMax());
         currShift.setAppartient(this);
         // Pour chaque shift on cherche à coller les tournées le plus possible.
@@ -136,17 +145,18 @@ public class Solution {
                 this.shifts.add(currShift);
             }
         }
-        int tempsMort = 0;
-        tempsMort = getTempsMort(tempsMort);
+        int tempsMort = getTempsMort();
         System.out.println(tempsMort);
-
+        return tempsMort;
     }
 
     /**
      * Algorithme qui optimise la solution de l'algo collage en prenant les shifts avec une seule tournée et en essyant
      * de les redistribuer sur des shifts valides
+     *
+     * @return le temps mort
      */
-    public void algoCollageOpti() {
+    public int algoCollageOpti() {
         Shift currShift = new Shift(this.instance.getDureeMin(), this.instance.getDureeMax());
         currShift.setAppartient(this);
         // Pour chaque shift on cherche à coller les tournées le plus possible.
@@ -198,51 +208,47 @@ public class Solution {
                 this.shifts.remove(badShift);
             }
         }
-        int tempsMort = 0;
-        tempsMort = getTempsMort(tempsMort);
+        int tempsMort = getTempsMort();
         System.out.println(tempsMort);
+        return tempsMort;
     }
 
-    public void algoTdebTfin(){
+    public int algoPlusProche() {
         Shift currShift = new Shift(this.instance.getDureeMin(), this.instance.getDureeMax());
         currShift.setAppartient(this);
         this.shifts.add(currShift);
-        long  plusPetitTempsMort=Long.MAX_VALUE;
-        boolean flaginsert = false;
 
+        // Les tournées sont classés par début croissant
+        for (Tournee tournee : this.instance.getTournees()) {
 
-        for (Tournee tournee1 : instance.getTournees()) {
-            Timestamp ts1= new Timestamp(tournee1.getFin().getTime());
+            Shift bestShift = null;
+            int bestTempMort = Integer.MAX_VALUE;
 
-
-            for (Tournee tournee2 : instance.getTournees()) {
-                Timestamp ts2= new Timestamp(tournee2.getFin().getTime());
-                Tournee plusProcheTournee = new Tournee();
-
-                if (ts1.compareTo(ts2) < plusPetitTempsMort){
-                    plusPetitTempsMort=ts1.compareTo(ts2);
-                    plusProcheTournee = tournee2;
-                }
-                
-            }
-
-                for (Shift shift : shifts) {
-                    if (shift.addTournee(tournee)) {
-                        flaginsert = true;
-                        break;
+            for (Shift shift : shifts) {
+                if (shift.addTournee(tournee)) {
+                    if (shift.tempsMort() < bestTempMort) {
+                        if (bestShift != null) {
+                            bestShift.popTournee();
+                        }
+                        bestShift = shift;
+                        bestTempMort = shift.tempsMort();
+                    } else {
+                        shift.popTournee();
                     }
                 }
-                if (!flaginsert) {
-                    currshift = new Shift(instance.getDureeMin(), instance.getDureeMax());
-                    currshift.addTournee(tournee);
-                    currshift.setAppartient(this);
-                    this.shifts.add(currshift);
-                }
-
-
+            }
+            if (bestShift == null) {
+                currShift = new Shift(instance.getDureeMin(), instance.getDureeMax());
+                currShift.setAppartient(this);
+                currShift.addTournee(tournee);
+                this.shifts.add(currShift);
+            }
         }
-
+        int tempsMort = getTempsMort();
+        System.out.println(tempsMort);
+        return tempsMort;
     }
+
 
     @Override
     public String toString() {
