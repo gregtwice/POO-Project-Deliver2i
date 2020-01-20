@@ -165,6 +165,10 @@ public class Shift {
         return temps > this.DUREE_MIN;
     }
 
+    public  Tournee lastTournee () {
+       return this.getTournees().get(this.getTournees().size()-1);
+    }
+
     /**
      * Retire la dernière tournée du shift
      *

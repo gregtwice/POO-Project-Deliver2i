@@ -50,22 +50,6 @@ public class Tournee {
     }
 
     @Override
-    public int hashCode() {
-        int result = debut != null ? debut.hashCode() : 0;
-        result = 31 * result + (fin != null ? fin.hashCode() : 0);
-        return result;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Tournee tournee = (Tournee) o;
-        if (!Objects.equals(debut, tournee.debut)) return false;
-        return Objects.equals(fin, tournee.fin);
-    }
-
-    @Override
     public String toString() {
         return "Tournee{" +
                 "debut=" + debut +
@@ -97,4 +81,18 @@ public class Tournee {
         this.shifts.add(shift);
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Tournee tournee = (Tournee) o;
+        return this.getDebut().equals(tournee.getDebut()) &&
+                this.getFin().equals(tournee.getFin()) &&
+                this.getId().equals(tournee.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getDebut(), getFin(), getId());
+    }
 }

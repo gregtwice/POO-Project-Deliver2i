@@ -1,8 +1,11 @@
 package modele;
 
+import utils.DateMath;
+
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 @Entity
 public class Solution {
@@ -56,6 +59,19 @@ public class Solution {
 
     public void setNomAlgo(String nomAlgo) {
         this.nomAlgo = nomAlgo;
+    }
+
+    public boolean tourneeSol(Tournee tournee){
+
+        for (Shift shift : shifts) {
+           for (Tournee tournee1 : shift.getTournees()){
+               if (tournee.equals(tournee1)){
+                   return true;
+               }
+           }
+        }
+        return false;
+
     }
 
     /**
