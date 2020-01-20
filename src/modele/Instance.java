@@ -131,8 +131,8 @@ public class Instance {
     public void allAlgos() {
         for (Method m : Solution.class.getMethods()) {
             if (m.getName().contains("algo")) {
-                if (m.getName().contains("Basique"))
-                    continue;
+//                if (m.getName().contains("Basique"))
+//                    continue;
                 Solution s = new Solution();
                 s.setInstance(this);
                 try {
