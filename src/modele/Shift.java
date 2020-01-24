@@ -44,6 +44,9 @@ public class Shift {
     @Column(name = "TEMPS_TOTAL")
     private int tempsTotal;
 
+    @Transient
+    private Tournee lastInserted;
+
     /**
      * Constructeur de la classe Shift
      *
@@ -87,6 +90,9 @@ public class Shift {
      * @return la valeur du temps mort du shift
      */
     public int tempsMort() {
+        if (tournees.size() == 0) {
+            return 0;
+        }
         int duree = 0;
         for (Tournee tourne : tournees) {
             duree += tourne.getTempsTournee();
@@ -103,20 +109,20 @@ public class Shift {
      *
      * @param tournee La tournée à ajouter, la tournée ne doit pas se superposer avec les tournées déja présentes dans
      *                le shift
-     *
      * @return true si la tournée a été ajoutée, false sinon
      */
     public boolean addTournee(Tournee tournee) {
         // Si le shift est vide, alors on ajoute
         if (tournees.isEmpty()) {
             tournees.add(tournee);
+            lastInserted = tournee;
             tempsTotal += tournee.getTempsTournee();
         } else {
             // sinon
             // est ce que les tournées se superposent
 
             for (Tournee t : tournees) {
-                if (tournee.getDebut().getTime() <= t.getFin().getTime() && t.getDebut().getTime() <= t.getFin().getTime()) {
+                if (tournee.getDebut().getTime() < t.getFin().getTime() && t.getDebut().getTime() < t.getFin().getTime()) {
                     return false;
                 }
             }
@@ -128,6 +134,7 @@ public class Shift {
                 return false;
             }
             this.tournees.add(tournee);
+            lastInserted = tournee;
 //            tempsTotal += (int) (Last.getFin().getTime() - tournee.getDebut().getTime()) / 1000 / 60;
 //            tempsTotal += tournee.getTempsTournee();
         }
@@ -142,9 +149,12 @@ public class Shift {
 
     private void calculerTempTotal() {
         this.tempsTotal = 0;
-        this.tempsTotal = (int) (tournees.get(tournees.size() - 1).getFin().getTime() / 1000 / 60) - (int) (tournees.get(0).getDebut().getTime() / 1000 / 60);
-        if (tempsTotal < DUREE_MIN) {
-            this.tempsTotal += DUREE_MIN - tempsTotal;
+        if (tournees.size() > 0) {
+            this.tempsTotal = (int) (tournees.get(tournees.size() - 1).getFin().getTime() / 1000 / 60) - (int)
+                    (tournees.get(0).getDebut().getTime() / 1000 / 60);
+            if (tempsTotal < DUREE_MIN) {
+                this.tempsTotal += DUREE_MIN - tempsTotal;
+            }
         }
     }
 
@@ -165,8 +175,8 @@ public class Shift {
         return temps > this.DUREE_MIN;
     }
 
-    public  Tournee lastTournee () {
-       return this.getTournees().get(this.getTournees().size()-1);
+    public Tournee lastTournee() {
+        return this.getTournees().get(this.getTournees().size() - 1);
     }
 
     /**
@@ -175,10 +185,9 @@ public class Shift {
      * @return la tournée qui a été retirée
      */
     public Tournee popTournee() {
-
-        Tournee tournee = this.tournees.remove(this.tournees.size() - 1);
+        this.tournees.remove(lastInserted);
         this.calculerTempTotal();
-        return tournee;
+        return lastInserted;
     }
 
     @Override

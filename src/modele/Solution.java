@@ -3,9 +3,7 @@ package modele;
 import utils.DateMath;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 @Entity
 public class Solution {
@@ -61,14 +59,14 @@ public class Solution {
         this.nomAlgo = nomAlgo;
     }
 
-    public boolean tourneeSol(Tournee tournee){
+    public boolean tourneeSol(Tournee tournee) {
 
         for (Shift shift : shifts) {
-           for (Tournee tournee1 : shift.getTournees()){
-               if (tournee.equals(tournee1)){
-                   return true;
-               }
-           }
+            for (Tournee tournee1 : shift.getTournees()) {
+                if (tournee.equals(tournee1)) {
+                    return true;
+                }
+            }
         }
         return false;
 
@@ -100,7 +98,7 @@ public class Solution {
             tempsMort += shift.tempsMort();
             tournees += shift.getTournees().size();
         }
-        System.out.print("\tnb Tournées = " + tournees + " \t");
+//        System.out.print("\tnb Tournées = " + tournees + " \t");
         return tempsMort;
     }
 
@@ -203,26 +201,122 @@ public class Solution {
                 badShifts.add(shift);
             }
         }
-        for (Shift badShift : badShifts) {
-            Shift bestShift = null;
-            int minTempsMort = 9999;
-            Tournee tournee = badShift.getTournees().get(0);
-            for (Shift shift : shifts) {
-                // si on peut ajouter au shift
-                if (shift.getTournees().get(shift.getTournees().size() - 1).getFin().compareTo(tournee.getDebut()) <= 0) {
-                    if (shift.addTournee(tournee)) {
-                        if (minTempsMort > shift.tempsMort()) {
-                            bestShift = shift;
-                            minTempsMort = shift.tempsMort();
+//        for (Shift badShift : badShifts) {
+//            Shift bestShift = null;
+//            int minTempsMort = 9999;
+//            Tournee tournee = badShift.getTournees().get(0);
+//            for (Shift shift : shifts) {
+//                // si on peut ajouter au shift
+//                if (shift.getTournees().get(shift.getTournees().size() - 1).getFin().compareTo(tournee.getDebut()) <= 0) {
+//                    if (shift.addTournee(tournee)) {
+//                        if (minTempsMort > shift.tempsMort()) {
+//                            bestShift = shift;
+//                            minTempsMort = shift.tempsMort();
+//                        }
+//                        shift.popTournee();
+//                    }
+//                }
+//            }
+//
+//            if (bestShift != null && bestShift.addTournee(tournee)) {
+//                this.shifts.remove(badShift);
+//            }
+        try {
+            for (int i = this.shifts.size() - 1; i >= 0; i--) {
+
+                int tempsMortBefore = getTempsMort();
+
+                Shift testShift = this.shifts.get(i);
+                int nbTournees = testShift.getTournees().size();
+
+                ArrayList<Shift> touchedShifts = new ArrayList<>();
+                ArrayList<Tournee> touchedTournees = new ArrayList<>();
+                for (Tournee tournee : testShift.getTournees()) {
+                    for (Shift shift : shifts) {
+                        if (shift.addTournee(tournee)) {
+                            nbTournees -= 1;
+                            touchedShifts.add(shift);
+                            touchedTournees.add(tournee);
+                            break;
                         }
-                        shift.popTournee();
                     }
                 }
-            }
 
-            if (bestShift != null && bestShift.addTournee(tournee)) {
-                this.shifts.remove(badShift);
+                if (nbTournees == 0) {
+                    for (Tournee touchedTournee : touchedTournees) {
+                        testShift.getTournees().remove(touchedTournee);
+                    }
+                }
+
+                int tempsMortAfter = getTempsMort();
+                if (nbTournees == 0 && tempsMortAfter < tempsMortBefore) {
+                    this.shifts.remove(testShift);
+                } else {
+                    for (Tournee touchedTournee : touchedTournees) {
+                        testShift.addTournee(touchedTournee);
+                    }
+                    for (Shift touchedShift : touchedShifts) {
+                        for (Tournee touchedTournee : touchedTournees) {
+                            touchedShift.getTournees().remove(touchedTournee);
+                        }
+                    }
+                }
+                int t = 0;
+                for (Shift shift : shifts) {
+                    t += shift.getTournees().size();
+                }
+                if (t != 185) {
+                    t = 0;
+                }
+
             }
+//            for (int i = this.shifts.size() - 1; i >= 0; i--) {
+//                int tempsMortAvant = this.getTempsMort();
+//                int tempsMortApres = Integer.MAX_VALUE;
+//                List<Shift> addShift = new ArrayList<>();
+//                Shift badShift = this.shifts.get(i);
+//                int nbTournee = badShift.getTournees().size();
+//                System.out.print(nbTournee);
+//                ArrayList<Tournee> tourneesAjoutees = new ArrayList<>();
+//                for (Tournee tournee : badShift.getTournees()) {
+//                    for (int j = 0; j < shifts.size(); j++) {
+//                        if (nbTournee == 0) {
+//                            break;
+//                        }
+//                        Shift shift = shifts.get(j);
+//                        if (shift.addTournee(tournee)) {
+//                            nbTournee--;
+//                            tourneesAjoutees.add(tournee);
+//                            addShift.add(shift);
+//                        }
+//                    }
+//                }
+//                if (nbTournee == 0) {
+//                    for (Tournee t : tourneesAjoutees) {
+//                        badShift.getTournees().remove(t);
+//                    }
+//                }
+//                tempsMortApres = this.getTempsMort();
+//                if (nbTournee == 0 && tempsMortApres < tempsMortAvant) {
+//                    this.shifts.remove(badShift);
+//                    System.out.println("Hop la ça par");
+//                } else if (!addShift.isEmpty()) {
+//                    if (nbTournee == 0) {
+//                        tourneesAjoutees.sort(Comparator.comparing(Tournee::getDebut));
+//                        for (Tournee tourneesAjoutee : tourneesAjoutees) {
+//                            badShift.addTournee(tourneesAjoutee);
+//                        }
+//                    }
+//                    for (Shift shift : addShift) {
+//                        if (shift.getTournees().size() > 0)
+//                            shift.popTournee();
+//                    }
+//                }
+//
+//
+//            }
+        } catch (Exception E) {
+            E.printStackTrace();
         }
         int tempsMort = getTempsMort();
         System.out.println(tempsMort);
@@ -260,6 +354,72 @@ public class Solution {
                 this.shifts.add(currShift);
             }
         }
+        int tempsMort = getTempsMort();
+        System.out.println(tempsMort);
+        return tempsMort;
+    }
+
+    public int algoTdebTfin() {
+        try {
+            Shift currShift = null;
+            long plusPetitTempsMort = Long.MAX_VALUE;
+            int nbTry = 50;
+            boolean flaginsert;
+
+            for (Tournee tournee1 : instance.getTournees()) {
+                if (tourneeSol(tournee1))
+                    continue;
+
+
+                currShift = new Shift(instance.getDureeMin(), instance.getDureeMax());
+                currShift.setAppartient(this);
+                currShift.addTournee(tournee1);
+                this.shifts.add(currShift);
+
+
+                while (!currShift.hasTempsMinimum()) {
+                    Tournee lastTourne = currShift.lastTournee();
+                    Tournee plusProcheTournee = null;
+                    for (Tournee tournee2 : instance.getTournees()) {
+                        if (tourneeSol(tournee2))
+                            continue;
+
+                        int diff = DateMath.Diff2DatesMin(tournee2.getDebut(), lastTourne.getFin());
+                        if (diff < plusPetitTempsMort && diff > 0) {
+                            plusPetitTempsMort = diff;
+                            plusProcheTournee = tournee2;
+                        }
+                    }
+
+                    if (plusProcheTournee != null) {
+                        currShift.addTournee(plusProcheTournee);
+                    }
+
+/*            if (currShift.addTournee(plusProcheTournee)) {
+                flaginsert = true;
+                System.out.println("true");
+                break;
+            }*/
+
+/*                        if (!flaginsert) {
+                            currShift = new Shift(instance.getDureeMin(), instance.getDureeMax());
+                            currShift.setAppartient(this);
+                            currShift.addTournee(plusProcheTournee);
+                            this.shifts.add(currShift);
+                        }*/
+                    plusPetitTempsMort = Long.MAX_VALUE;
+                    nbTry--;
+                    if (nbTry < 0) {
+                        break;
+                    }
+                }
+                nbTry = 50;
+
+            }
+        } catch (NullPointerException e) {
+            e.printStackTrace();
+        }
+
         int tempsMort = getTempsMort();
         System.out.println(tempsMort);
         return tempsMort;

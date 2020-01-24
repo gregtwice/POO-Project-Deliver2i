@@ -132,7 +132,9 @@ public class Instance {
         String bestMethode = "";
         for (Method m : Solution.class.getMethods()) {
             if (m.getName().contains("algo")) {
-//                if (m.getName().contains("Basique"))
+                if (m.getName().contains("Basique"))
+                    continue;
+//                if (m.getName().contains("algoTdebTfin"))
 //                    continue;
                 Solution s = new Solution();
                 s.setInstance(this);
