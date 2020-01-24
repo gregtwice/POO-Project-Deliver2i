@@ -1,9 +1,7 @@
 package modele;
 
 import javax.persistence.*;
-import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 @Entity
@@ -21,10 +19,16 @@ public class Solution {
 
     private String nomAlgo;
 
+    @Transient
+    private int tempsMort;
+
+
     /**
      * Constructeur de la classe
      */
-    public Solution() {this.shifts = new ArrayList<>();}
+    public Solution() {
+        this.shifts = new ArrayList<>();
+    }
 
     public Long getId() {
         return id;
@@ -59,24 +63,32 @@ public class Solution {
     }
 
     /**
-     * Algorithme le moins optimisé, il crée un shift pour chaque tournée
+     * Vérifie si la tournée n'a pas déjà été ajoutée dans la solution
+     *
+     * @param tournee La tournée à vérifier
+     *
+     * @return true si la tournée est déjà dans la soltution, false sinon
      */
-    public void algoBasique() {
-        for (Tournee tournee : instance.getTournees()) {
-            Shift curShift = new Shift(instance.getDureeMin(), instance.getDureeMax());
-            curShift.setAppartient(this);
-            curShift.addTournee(tournee);
-            tournee.addShift(curShift);
-            shifts.add(curShift);
-        }
+    public boolean tourneeSol(Tournee tournee) {
 
-        int tempsMort = 0;
-        tempsMort = getTempsMort(tempsMort);
-        System.out.println(tempsMort);
+        for (Shift shift : shifts) {
+            for (Tournee tournee1 : shift.getTournees()) {
+                if (tournee.equals(tournee1)) {
+                    return true;
+                }
+            }
+        }
+        return false;
 
     }
 
-    private int getTempsMort(int tempsMort) {
+    /**
+     * Calcule le temps mort de la Solution
+     *
+     * @return le temps Mort
+     */
+    public int getTempsMort() {
+        int tempsMort = 0;
         for (Shift shift : shifts) {
             tempsMort += shift.tempsMort();
         }
@@ -85,8 +97,10 @@ public class Solution {
 
     /**
      * Algorithme qui ajoute un maximum de tournées au shift
+     *
+     * @return le temps mort
      */
-    public void algoBourrage() {
+    public int algoBourrage() {
         Shift currshift = new Shift(instance.getDureeMin(), instance.getDureeMax());
         currshift.setAppartient(this);
         this.shifts.add(currshift);
@@ -105,15 +119,17 @@ public class Solution {
                 this.shifts.add(currshift);
             }
         }
-        int tempsMort = 0;
-        tempsMort = getTempsMort(tempsMort);
+        int tempsMort = getTempsMort();
         System.out.println(tempsMort);
+        return tempsMort;
     }
 
     /**
      * Algorithme qui remplit les tournées jusqu'a la durée minimale
+     *
+     * @return le temps mort
      */
-    public void algoCollage() {
+    public int algoCollage() {
         Shift currShift = new Shift(this.instance.getDureeMin(), this.instance.getDureeMax());
         currShift.setAppartient(this);
         // Pour chaque shift on cherche à coller les tournées le plus possible.
@@ -136,17 +152,18 @@ public class Solution {
                 this.shifts.add(currShift);
             }
         }
-        int tempsMort = 0;
-        tempsMort = getTempsMort(tempsMort);
+        int tempsMort = getTempsMort();
         System.out.println(tempsMort);
-
+        return tempsMort;
     }
 
     /**
      * Algorithme qui optimise la solution de l'algo collage en prenant les shifts avec une seule tournée et en essyant
      * de les redistribuer sur des shifts valides
+     *
+     * @return le temps mort
      */
-    public void algoCollageOpti() {
+    public int algoCollageOpti() {
         Shift currShift = new Shift(this.instance.getDureeMin(), this.instance.getDureeMax());
         currShift.setAppartient(this);
         // Pour chaque shift on cherche à coller les tournées le plus possible.
@@ -183,14 +200,12 @@ public class Solution {
             Tournee tournee = badShift.getTournees().get(0);
             for (Shift shift : shifts) {
                 // si on peut ajouter au shift
-                if (shift.getTournees().get(shift.getTournees().size() - 1).getFin().compareTo(tournee.getDebut()) <= 0) {
-                    if (shift.addTournee(tournee)) {
-                        if (minTempsMort > shift.tempsMort()) {
-                            bestShift = shift;
-                            minTempsMort = shift.tempsMort();
-                        }
-                        shift.popTournee();
+                if (shift.addTournee(tournee)) {
+                    if (minTempsMort > shift.tempsMort()) {
+                        bestShift = shift;
+                        minTempsMort = shift.tempsMort();
                     }
+                    shift.popTournee();
                 }
             }
 
@@ -198,56 +213,94 @@ public class Solution {
                 this.shifts.remove(badShift);
             }
         }
-        int tempsMort = 0;
-        tempsMort = getTempsMort(tempsMort);
+        int tempsMort = getTempsMort();
         System.out.println(tempsMort);
+        return tempsMort;
     }
 
-    public void algoTdebTfin(){
+    /**
+     * Algorithme qui cherche à minimiser la différence entre le début et la fin des tournées
+     *
+     * @return le temps mort total
+     */
+    public int algoPlusProche() {
         Shift currShift = new Shift(this.instance.getDureeMin(), this.instance.getDureeMax());
         currShift.setAppartient(this);
         this.shifts.add(currShift);
-        long  plusPetitTempsMort=Long.MAX_VALUE;
-        boolean flaginsert = false;
 
+        // Les tournées sont classés par début croissant
+        for (Tournee tournee : this.instance.getTournees()) {
 
-        for (Tournee tournee1 : instance.getTournees()) {
-            Timestamp ts1= new Timestamp(tournee1.getFin().getTime());
+            Shift bestShift = null;
+            int bestTempMort = Integer.MAX_VALUE;
 
-
-            for (Tournee tournee2 : instance.getTournees()) {
-                Timestamp ts2= new Timestamp(tournee2.getFin().getTime());
-                Tournee plusProcheTournee = new Tournee();
-
-                if (ts1.compareTo(ts2) < plusPetitTempsMort){
-                    plusPetitTempsMort=ts1.compareTo(ts2);
-                    plusProcheTournee = tournee2;
-                }
-                
-            }
-
-                for (Shift shift : shifts) {
-                    if (shift.addTournee(tournee)) {
-                        flaginsert = true;
-                        break;
+            for (Shift shift : shifts) {
+//                if (shift.hasTempsMinimum())
+//                    continue;
+                if (shift.addTournee(tournee)) {
+                    if (shift.tempsMort() < bestTempMort) {
+                        if (bestShift != null) {
+                            bestShift.popTournee();
+                        }
+                        bestShift = shift;
+                        bestTempMort = shift.tempsMort();
+                    } else {
+                        shift.popTournee();
                     }
                 }
-                if (!flaginsert) {
-                    currshift = new Shift(instance.getDureeMin(), instance.getDureeMax());
-                    currshift.addTournee(tournee);
-                    currshift.setAppartient(this);
-                    this.shifts.add(currshift);
-                }
-
-
+            }
+            if (bestShift == null) {
+                currShift = new Shift(instance.getDureeMin(), instance.getDureeMax());
+                currShift.setAppartient(this);
+                currShift.addTournee(tournee);
+                this.shifts.add(currShift);
+            }
         }
-
+        int tempsMort = getTempsMort();
+        System.out.println(tempsMort);
+        return tempsMort;
     }
+
+    public int algoPlusProcheDiff() {
+        Shift currShift = new Shift(this.instance.getDureeMin(), this.instance.getDureeMax());
+        currShift.setAppartient(this);
+        this.shifts.add(currShift);
+
+        // Les tournées sont classés par début croissant
+        for (Tournee tournee : this.instance.getTournees()) {
+
+            Shift bestShift = null;
+            int diff = Integer.MAX_VALUE;
+
+            for (Shift shift : shifts) {
+                int tm = shift.tempsMort();
+                if (shift.addTournee(tournee)) {
+                    if (shift.tempsMort() - tm < diff) {
+                        if (bestShift != null) {
+                            bestShift.popTournee();
+                        }
+                        bestShift = shift;
+                        diff = shift.tempsMort() - tm;
+                    } else {
+                        shift.popTournee();
+                    }
+                }
+            }
+            if (bestShift == null) {
+                currShift = new Shift(instance.getDureeMin(), instance.getDureeMax());
+                currShift.setAppartient(this);
+                currShift.addTournee(tournee);
+                this.shifts.add(currShift);
+            }
+        }
+        int tempsMort = getTempsMort();
+        System.out.println(tempsMort);
+        return tempsMort;
+    }
+
 
     @Override
     public String toString() {
-        return "Solution{" +
-                "nomAlgo='" + nomAlgo + '\'' +
-                '}';
+        return nomAlgo;
     }
 }

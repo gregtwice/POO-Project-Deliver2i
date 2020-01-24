@@ -4,6 +4,7 @@ import utils.DateMath;
 
 import javax.persistence.*;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 @NamedQueries({
@@ -90,11 +91,7 @@ public class Shift {
         for (Tournee tourne : tournees) {
             duree += tourne.getTempsTournee();
         }
-        if (duree < this.DUREE_MIN) {
-            return (DUREE_MIN - duree);
-        } else {
-            return DateMath.Diff2DatesMin(tournees.get(tournees.size() - 1).getFin(), tournees.get(0).getDebut()) - duree;
-        }
+        return tempsTotal - duree;
     }
 
     public List<Tournee> getTournees() {
@@ -117,22 +114,44 @@ public class Shift {
         } else {
             // sinon
             // est ce que les tournées se superposent
-            Tournee Last = tournees.get(tournees.size() - 1);
-            if (Last.getFin().compareTo(tournee.getDebut()) > 0) {
-                return false;
+
+            for (Tournee t : tournees) {
+                if (tournee.getDebut().getTime() < t.getFin().getTime() && t.getDebut().getTime() < t.getFin().getTime()) {
+                    return false;
+                }
             }
+
             // est ce que la tournée est dans le temps maximal ?
             int minutesDebut = (int) (this.tournees.get(0).getDebut().getTime() / 1000 / 60);
             int minutesFin = (int) (tournee.getFin().getTime() / 1000 / 60);
             if (minutesDebut + this.DUREE_MAX < minutesFin) {
                 return false;
             }
-
             this.tournees.add(tournee);
-            tempsTotal += (int) (Last.getFin().getTime() - tournee.getDebut().getTime()) / 1000 / 60;
-            tempsTotal += tournee.getTempsTournee();
+//            tempsTotal += (int) (Last.getFin().getTime() - tournee.getDebut().getTime()) / 1000 / 60;
+//            tempsTotal += tournee.getTempsTournee();
         }
+        this.sortTournees();
+        this.calculerTempTotal();
         return true;
+    }
+
+    /**
+     * Trie les tournées du shift par date de début croissante
+     */
+    private void sortTournees() {
+        this.tournees.sort(Comparator.comparing(Tournee::getDebut));
+    }
+
+    /**
+     * Calcule le temps total du shift
+     */
+    private void calculerTempTotal() {
+        this.tempsTotal = 0;
+        this.tempsTotal = (int) (tournees.get(tournees.size() - 1).getFin().getTime() / 1000 / 60) - (int) (tournees.get(0).getDebut().getTime() / 1000 / 60);
+        if (tempsTotal < DUREE_MIN) {
+            this.tempsTotal += DUREE_MIN - tempsTotal;
+        }
     }
 
     /**
@@ -153,22 +172,27 @@ public class Shift {
     }
 
     /**
+     *
+     * @return la derniere tournee du shift
+     */
+    public Tournee lastTournee() {
+        return this.getTournees().get(this.getTournees().size() - 1);
+    }
+
+    /**
      * Retire la dernière tournée du shift
      *
      * @return la tournée qui a été retirée
      */
     public Tournee popTournee() {
-        return this.tournees.remove(this.tournees.size() - 1);
+
+        Tournee tournee = this.tournees.remove(this.tournees.size() - 1);
+        this.calculerTempTotal();
+        return tournee;
     }
 
     @Override
     public String toString() {
-        return "Shift{" +
-                "id=" + id +
-                ", DUREE_MIN=" + DUREE_MIN +
-                ", DUREE_MAX=" + DUREE_MAX +
-                ", tournees=" + tournees +
-                ", tempsTotal=" + tempsTotal +
-                '}';
+        return "Début : " + this.tournees.get(0).getDebut() + " ," + this.tournees.size() + " Tournées, " + tempsMort() + " minutes de temps Mort";
     }
 }
