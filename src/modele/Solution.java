@@ -261,6 +261,10 @@ public class Solution {
         return tempsMort;
     }
 
+    /**
+     * Reprend l'algo le plus proche mais prend en compte la différence de temps mort suivant l'ajout de la tournée
+     * @return le temps mort
+     */
     public int algoPlusProcheDiff() {
         Shift currShift = new Shift(this.instance.getDureeMin(), this.instance.getDureeMax());
         currShift.setAppartient(this);

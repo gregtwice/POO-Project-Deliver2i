@@ -35,7 +35,7 @@ public class Instance {
     private Long id;
 
     /**
-     * Constructeur de la classe
+     * Constructeur de la classe Instance
      *
      * @param nom      Le nom de l'instance, contenu en général dans un fichier instance.csv
      * @param dureeMin La durée minimale d'un shift

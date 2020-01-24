@@ -12,7 +12,7 @@ public class Tournee {
     @ManyToOne(cascade = CascadeType.ALL)
     private Instance appartient;
 
-    @ManyToMany (mappedBy = "tournees")
+    @ManyToMany(mappedBy = "tournees")
     private Set<Shift> shifts;
 
     @Basic
@@ -77,6 +77,11 @@ public class Tournee {
         this.appartient = appartient;
     }
 
+    /**
+     * Ajoute le shift à la tournée
+     *
+     * @param shift le shift à ajouter
+     */
     public void addShift(Shift shift) {
         this.shifts.add(shift);
     }
