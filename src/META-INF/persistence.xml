@@ -10,7 +10,6 @@
         <class>modele.Tournee</class>
         <class>modele.Shift</class>
         <class>modele.Instance</class>
-<!--        <class>modele.TourneeInShift</class>-->
         <properties>
 <!--                        <property name="eclipselink.ddl-generation" value="drop-and-create-tables"/>-->
             <property name="eclipselink.ddl-generation" value="none"/>

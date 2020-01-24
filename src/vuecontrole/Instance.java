@@ -3,6 +3,10 @@ package vuecontrole;
 import modele.Shift;
 import modele.Solution;
 import modele.Tournee;
+import org.eclipse.persistence.config.PersistenceUnitProperties;
+import org.eclipse.persistence.internal.helper.IdentityWeakHashMap;
+import org.eclipse.persistence.jpa.JpaHelper;
+import test.Test1;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -10,17 +14,16 @@ import javax.persistence.Persistence;
 import javax.persistence.Query;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
-import java.io.File;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.text.SimpleDateFormat;
-import java.util.*;
 import java.util.List;
-import java.awt.Graphics;
-import javax.imageio.ImageIO;
-import javax.swing.JPanel;
+import java.util.*;
 
 public class Instance extends JFrame {
 
@@ -39,6 +42,7 @@ public class Instance extends JFrame {
     private JLabel solNbMoyTSol;
     private JLabel solDureeTotaleLabel;
     private JPanel image;
+    private JButton regénererTouteLaBaseButton;
     private JTable tableInfos;
     private JPanel PanelGraphique;
 
@@ -58,14 +62,12 @@ public class Instance extends JFrame {
         // initConnexion();                                  /!\
         initComponent();
 
+
     }
 
     private void initComponent() {
         System.out.println("Working Directory = " +
                 System.getProperty("user.dir"));
-        image = new JPanel();
-        image.add(new Image());
-        PanelInstance.add(image);
         listInstances.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -84,6 +86,13 @@ public class Instance extends JFrame {
                 selectedSolution = (Solution) listeSolutions.getSelectedValue();
                 actualiserListeShift();
                 majInfosSolution();
+            }
+        });
+
+        regénererTouteLaBaseButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Test1.main(new String[2]);
             }
         });
 
@@ -226,14 +235,6 @@ public class Instance extends JFrame {
 
     public static void main(String[] args) {
         Instance I = new Instance();
-    }
-
-    private void calculShift() {
-        Set<Solution> solutions = new HashSet<>();
-        //        for (Solution solution:solutions) {
-//            solution.algoBasique();
-//        }
-        remplirListShift();
     }
 
 }

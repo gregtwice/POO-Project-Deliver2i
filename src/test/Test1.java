@@ -3,13 +3,14 @@ package test;
 import io.InstanceReader;
 import io.exception.ReaderException;
 import modele.Instance;
-import modele.Solution;
 import modele.Tournee;
-import vuecontrole.Accueil;
+import org.eclipse.persistence.jpa.JpaHelper;
 
 import javax.persistence.*;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Test1 {
 
@@ -17,6 +18,12 @@ public class Test1 {
         try {
 
             EntityManagerFactory emf = Persistence.createEntityManagerFactory("Deliver2iPU");
+            Map properties = new HashMap();
+            properties.put("eclipselink.ddl-generation", "drop-and-create-tables");
+            properties.put("eclipselink.ddl-generation.output-mode", "database");
+            //this causes DDL generation to occur on refreshMetadata rather than wait until an em is obtained
+            properties.put("eclipselink.deploy-on-startup", "true");
+            JpaHelper.getEntityManagerFactory(emf).refreshMetadata(properties);
             EntityManager em = emf.createEntityManager();
             EntityTransaction et = em.getTransaction();
             for (int i = 1; i <= 10; i++) {
