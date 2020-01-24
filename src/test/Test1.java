@@ -30,17 +30,25 @@ public class Test1 {
                 et.begin();
                 InstanceReader reader = new InstanceReader("instances/instance_" + i + ".csv");
                 Instance instance = reader.readInstance();
-                System.out.println(instance.getNom());
-                instance.getTournees().sort(Comparator.comparing(Tournee::getDebut));
-                instance.allAlgos();
-                instance.writeJson();
                 em.persist(instance);
+
 //                em.persist(s);
                 et.commit();
             }
             Query query = em.createNamedQuery("Instance.All");
             List <Instance> instances = query.getResultList();
+
+            for (Instance instance : instances) {
+                System.out.println(instance.getNom());
+                instance.getTournees().sort(Comparator.comparing(Tournee::getDebut));
+                instance.allAlgos();
+                instance.writeJson();
+                em.persist(instance);
+            }
+
             System.out.println(instances);
+
+
             em.close();
             emf.close();
 

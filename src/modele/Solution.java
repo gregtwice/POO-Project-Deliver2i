@@ -1,5 +1,7 @@
 package modele;
 
+import utils.DateMath;
+
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -123,6 +125,61 @@ public class Solution {
         System.out.println(tempsMort);
         return tempsMort;
     }
+
+    public int algoTdebTfin() {
+        try {
+            Shift currShift = null;
+            long plusPetitTempsMort = Long.MAX_VALUE;
+            int nbTry = 50;
+            boolean flaginsert;
+
+            for (Tournee tournee1 : instance.getTournees()) {
+                if (tourneeSol(tournee1))
+                    continue;
+
+
+                currShift = new Shift(instance.getDureeMin(), instance.getDureeMax());
+                currShift.setAppartient(this);
+                currShift.addTournee(tournee1);
+                this.shifts.add(currShift);
+
+
+                while (!currShift.hasTempsMinimum()) {
+                    Tournee lastTourne = currShift.lastTournee();
+                    Tournee plusProcheTournee = null;
+                    for (Tournee tournee2 : instance.getTournees()) {
+                        if (tourneeSol(tournee2))
+                            continue;
+
+                        int diff = DateMath.Diff2DatesMin(tournee2.getDebut(), lastTourne.getFin());
+                        if (diff < plusPetitTempsMort && diff > 0) {
+                            plusPetitTempsMort = diff;
+                            plusProcheTournee = tournee2;
+                        }
+                    }
+
+                    if (plusProcheTournee != null) {
+                        currShift.addTournee(plusProcheTournee);
+                    }
+
+                    plusPetitTempsMort = Long.MAX_VALUE;
+                    nbTry--;
+                    if (nbTry < 0) {
+                        break;
+                    }
+                }
+                nbTry = 50;
+
+            }
+        } catch (NullPointerException e) {
+            e.printStackTrace();
+        }
+
+        int tempsMort = getTempsMort();
+        System.out.println(tempsMort);
+        return tempsMort;
+    }
+
 
     /**
      * Algorithme qui remplit les tournées jusqu'a la durée minimale
