@@ -116,7 +116,7 @@ public class Shift {
             // est ce que les tournées se superposent
 
             for (Tournee t : tournees) {
-                if (tournee.getDebut().getTime() <= t.getFin().getTime() && t.getDebut().getTime() <= t.getFin().getTime()) {
+                if (tournee.getDebut().getTime() < t.getFin().getTime() && t.getDebut().getTime() < t.getFin().getTime()) {
                     return false;
                 }
             }
@@ -136,10 +136,16 @@ public class Shift {
         return true;
     }
 
+    /**
+     * Trie les tournées du shift par date de début croissante
+     */
     private void sortTournees() {
         this.tournees.sort(Comparator.comparing(Tournee::getDebut));
     }
 
+    /**
+     * Calcule le temps total du shift
+     */
     private void calculerTempTotal() {
         this.tempsTotal = 0;
         this.tempsTotal = (int) (tournees.get(tournees.size() - 1).getFin().getTime() / 1000 / 60) - (int) (tournees.get(0).getDebut().getTime() / 1000 / 60);
@@ -165,8 +171,12 @@ public class Shift {
         return temps > this.DUREE_MIN;
     }
 
-    public  Tournee lastTournee () {
-       return this.getTournees().get(this.getTournees().size()-1);
+    /**
+     *
+     * @return la derniere tournee du shift
+     */
+    public Tournee lastTournee() {
+        return this.getTournees().get(this.getTournees().size() - 1);
     }
 
     /**
@@ -183,12 +193,6 @@ public class Shift {
 
     @Override
     public String toString() {
-        return "Shift{" +
-                "id=" + id +
-                ", DUREE_MIN=" + DUREE_MIN +
-                ", DUREE_MAX=" + DUREE_MAX +
-                ", tournees=" + tournees +
-                ", tempsTotal=" + tempsTotal +
-                '}';
+        return "Début : " + this.tournees.get(0).getDebut() + " ," + this.tournees.size() + " Tournées, " + tempsMort() + " minutes de temps Mort";
     }
 }

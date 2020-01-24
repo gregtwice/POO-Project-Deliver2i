@@ -29,6 +29,7 @@ public class Instance {
 
     @OneToMany(mappedBy = "instance", cascade = CascadeType.ALL)
     private Set<Solution> solutions;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -161,10 +162,7 @@ public class Instance {
 
     @Override
     public String toString() {
-        return "Instance{" +
-                "nom='" + nom + '\'' +
-                ", id=" + id +
-                '}';
+        return nom ;
     }
 
     /**
